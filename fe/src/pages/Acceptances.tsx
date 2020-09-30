@@ -1,4 +1,4 @@
-import React, { FC, useState } from 'react';
+import React, { FC } from 'react';
 import { Form, Grid, Sidebar } from 'semantic-ui-react';
 import AcceptanceList from '../components/AcceptanceList';
 import PatientDetail from '../components/PatientDetail';

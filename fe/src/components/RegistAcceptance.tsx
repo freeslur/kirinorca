@@ -8,7 +8,6 @@ import {
   Icon,
   Modal,
   ModalProps,
-  TextArea,
 } from 'semantic-ui-react';
 import { Input } from 'antd';
 import 'antd/dist/antd.css';
