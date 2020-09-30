@@ -1,30 +1,20 @@
 import config
+from db.database import Base
 from orcalib.or_acceptances import ORAcceptance
-from serve.data_cache.database import Base
 from sqlalchemy import Column, Integer, String
 
-# class Base(object):
-#     def __iter__(self):
-#         return iter(self.__dict__.items())
-
-#     def dict(self):
-#         return self.__dict__
-
-#     @classmethod
-#     def query(cls):
-#         if not hasattr(cls, "_query"):
-#             cls._query = session().query_property()
-#         return cls._query
+print(Base)
 
 
 class Acceptance(Base):
     __tablename__ = "acceptances"
-    Acceptance_ID = Column(String(length=255), primary_key=True)
-    Acceptance_Date = Column(String(length=255), primary_key=True)
-    Acceptance_Time = Column(String(length=255))
+    Acceptance_ID = Column(String, primary_key=True)
+    Acceptance_Date = Column(String, primary_key=True)
+    Acceptance_Time = Column(String)
     Status = Column(Integer)
-    Patient_ID = Column(String(length=255))
-    Acceptance_Memo = Column(String(length=255))
+    Patient_ID = Column(String)
+    Patient_Place = Column(String)
+    Acceptance_Memo = Column(String)
 
     def __repr__(self):
         return "<Acceptance %r>" % (self.Acceptance_ID)

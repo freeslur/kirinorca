@@ -4,11 +4,13 @@ from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import scoped_session, sessionmaker
 
+# from db import initdb
+
 _engine = None
 _session = None
 
 _dburl = "sqlite:///" + os.path.join(
-    os.path.abspath(os.path.dirname(__file__)), "../../db/demo.sqlite3"
+    os.path.abspath(os.path.dirname(__file__)), "demo.sqlite3"
 )
 
 Base = declarative_base()
@@ -43,3 +45,11 @@ def dispose():
     _engine = None
     _session = None
     Base.metadata.drop_all(bind=_engine)
+
+
+if _session is not None:
+    Base.query = _session.query_property()
+
+# init()
+# initdb.session = _session
+# initdb.initdb()
