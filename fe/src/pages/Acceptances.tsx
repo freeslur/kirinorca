@@ -69,7 +69,7 @@ const Acceptances: FC = () => {
                         <Grid.Column
                           style={{
                             backgroundColor: '#ECEFF1',
-                            minHeight: '80vh',
+                            minHeight: '83vh',
                           }}
                           // style={{
                           //   backgroundColor: 'red',

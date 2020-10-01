@@ -63,7 +63,7 @@ export const AccContextProvider = ({
   children: React.ReactNode;
 }) => {
   const [searched, setSearched] = useState(false);
-  const [detailP, setDetailP] = useState(true);
+  const [detailP, setDetailP] = useState(false);
   const [openNew, setOpenNew] = useState(false);
   const [openNewAcc, setOpenNewAcc] = useState(false);
   const [changeStatus, setChangeStatus] = useState<ChangeStatusType>({

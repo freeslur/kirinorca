@@ -1,8 +1,8 @@
 import graphene
+from db.simple.models import Acceptance as AcceptanceModel
+from db.simple.models import Patient as PatientModel
 from graphene import relay
 from graphene_sqlalchemy import SQLAlchemyConnectionField, SQLAlchemyObjectType
-from serve.model.models import Acceptance as AcceptanceModel
-from serve.model.models import Patient as PatientModel
 
 
 class Patient(SQLAlchemyObjectType):

@@ -1,24 +1,55 @@
 import uvicorn
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from starlette.graphql import GraphQLApp
 
-from db.database import init, session
-from serve.schema.schemas import schema
+from db.simple.database import SessionLocalS as session
+from db.simple.schemas import schema
+
+# from db.database import init, session
+# from serve.schema.schemas import schema
+
+
+# class Query(ObjectType):
+#     hello = String(name=String(default_value="stranger"))
+#     goodbye = String()
+
+#     def resolve_hello(self, info, name):
+#         return "Hello " + name
+
+#     def resolve_goodbye(root, info):
+#         return "See ya!"
+
+
+# schema = Schema(query=Query)
+
 
 app = FastAPI()
 
-init()
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+
+@app.get("/")
+async def home():
+    return {"msg": "hello"}
+
 
 app.add_route("/gql", GraphQLApp(schema=schema))
 
 
 @app.on_event("shutdown")
 def shutdown_event():
-    session().remove()
+    session.remove()
 
 
 if __name__ == "__main__":
-    uvicorn.run("app:app", host="0.0.0.0", port=5000, log_level="debug")
+    uvicorn.run("app:app", host="0.0.0.0", port=5000, log_level="debug", reload=True)
 
 # from flask import Flask
 # from flask_cors import CORS

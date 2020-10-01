@@ -11,6 +11,7 @@ import RegistAcceptance from './RegistAcceptance';
 
 const PatientDetail = ({ visible }: SidebarProps) => {
   const accCtx = useAccContext();
+
   return (
     <Sidebar
       as={Segment}
@@ -29,6 +30,9 @@ const PatientDetail = ({ visible }: SidebarProps) => {
       </Button>
       <Button color='green' disabled>
         会計処理
+      </Button>
+      <Button color='green' onClick={() => accCtx.actions.setDetailP(false)}>
+        閉じる
       </Button>
       <Segment>患者情報</Segment>
       <RegistAcceptance

@@ -9,6 +9,7 @@ import {
   Label,
   Table,
 } from 'semantic-ui-react';
+import { useAccContext } from '../contexts/AccContext';
 
 const statusOption = [{ key: '1', text: '待合室', value: '待合室' }];
 
@@ -16,6 +17,7 @@ const AcceptanceList = () => {
   const [activeIndex, setActiveIndex] = useState<string | number | undefined>(
     0
   );
+  const accCtx = useAccContext();
 
   const handleActiveIndex = (
     e: React.MouseEvent,
@@ -25,6 +27,10 @@ const AcceptanceList = () => {
     const newIndex = activeIndex === index ? -1 : index;
     console.log(newIndex);
     setActiveIndex(newIndex);
+  };
+
+  const handleShowDetail = (pati_id: string) => {
+    accCtx.actions.setDetailP(true);
   };
   return (
     <Container fluid>
@@ -51,7 +57,7 @@ const AcceptanceList = () => {
                 <Table.HeaderCell width={1}>状態</Table.HeaderCell>
                 <Table.HeaderCell width={2}>名前</Table.HeaderCell>
                 <Table.HeaderCell width={1}></Table.HeaderCell>
-                <Table.HeaderCell width={2}>診療圏番号</Table.HeaderCell>
+                <Table.HeaderCell width={2}>診察券番号</Table.HeaderCell>
                 <Table.HeaderCell width={1}>担当医師</Table.HeaderCell>
                 <Table.HeaderCell width={1}>患者位置</Table.HeaderCell>
                 <Table.HeaderCell width={5}>受付コメント</Table.HeaderCell>
@@ -80,85 +86,8 @@ const AcceptanceList = () => {
                     color='green'
                     label='カルテ'
                     style={{ fontSize: '10px' }}
-                  ></Button>
-                </Table.Cell>
-                <Table.Cell textAlign='center'>
-                  00001
-                  <br />
-                  49歳3ヶ月　女
-                </Table.Cell>
-                <Table.Cell>木村医師</Table.Cell>
-                <Table.Cell textAlign='center' style={{ padding: '0' }}>
-                  <Dropdown
-                    defaultValue='待合室'
-                    direction='right'
-                    options={statusOption}
+                    onClick={() => handleShowDetail('')}
                   />
-                </Table.Cell>
-                <Table.Cell></Table.Cell>
-              </Table.Row>
-              <Table.Row>
-                <Table.Cell>0001</Table.Cell>
-                <Table.Cell textAlign='center'>
-                  内科
-                  <br />
-                  一般診療
-                </Table.Cell>
-                <Table.Cell>8:56</Table.Cell>
-                <Table.Cell textAlign='center' style={{ padding: '0' }}>
-                  <Label style={{}}>受付済み</Label>
-                </Table.Cell>
-                <Table.Cell textAlign='center'>
-                  キム　キム
-                  <br />
-                  金　金
-                </Table.Cell>
-                <Table.Cell textAlign='center' style={{ padding: '0' }}>
-                  <Button
-                    icon='desktop'
-                    color='green'
-                    label='カルテ'
-                    style={{ fontSize: '10px' }}
-                  ></Button>
-                </Table.Cell>
-                <Table.Cell textAlign='center'>
-                  00001
-                  <br />
-                  49歳3ヶ月　女
-                </Table.Cell>
-                <Table.Cell>木村医師</Table.Cell>
-                <Table.Cell textAlign='center' style={{ padding: '0' }}>
-                  <Dropdown
-                    defaultValue='待合室'
-                    direction='right'
-                    options={statusOption}
-                  />
-                </Table.Cell>
-                <Table.Cell></Table.Cell>
-              </Table.Row>
-              <Table.Row>
-                <Table.Cell>0001</Table.Cell>
-                <Table.Cell textAlign='center'>
-                  内科
-                  <br />
-                  一般診療
-                </Table.Cell>
-                <Table.Cell>8:56</Table.Cell>
-                <Table.Cell textAlign='center' style={{ padding: '0' }}>
-                  <Label style={{}}>受付済み</Label>
-                </Table.Cell>
-                <Table.Cell textAlign='center'>
-                  キム　キム
-                  <br />
-                  金　金
-                </Table.Cell>
-                <Table.Cell textAlign='center' style={{ padding: '0' }}>
-                  <Button
-                    icon='desktop'
-                    color='green'
-                    label='カルテ'
-                    style={{ fontSize: '10px' }}
-                  ></Button>
                 </Table.Cell>
                 <Table.Cell textAlign='center'>
                   00001
@@ -200,91 +129,13 @@ const AcceptanceList = () => {
                 <Table.HeaderCell width={1}>状態</Table.HeaderCell>
                 <Table.HeaderCell width={2}>名前</Table.HeaderCell>
                 <Table.HeaderCell width={1}></Table.HeaderCell>
-                <Table.HeaderCell width={2}>診療圏番号</Table.HeaderCell>
+                <Table.HeaderCell width={2}>診察券番号</Table.HeaderCell>
                 <Table.HeaderCell width={1}>担当医師</Table.HeaderCell>
                 <Table.HeaderCell width={1}>患者位置</Table.HeaderCell>
                 <Table.HeaderCell width={5}>受付コメント</Table.HeaderCell>
               </Table.Row>
             </Table.Header>
             <Table.Body>
-              <Table.Row>
-                <Table.Cell>0001</Table.Cell>
-                <Table.Cell textAlign='center'>
-                  内科
-                  <br />
-                  一般診療
-                </Table.Cell>
-                <Table.Cell>8:56</Table.Cell>
-                <Table.Cell textAlign='center' style={{ padding: '0' }}>
-                  <Label style={{}}>受付済み</Label>
-                </Table.Cell>
-                <Table.Cell textAlign='center'>
-                  キム　キム
-                  <br />
-                  金　金
-                </Table.Cell>
-                <Table.Cell textAlign='center' style={{ padding: '0' }}>
-                  <Button
-                    icon='desktop'
-                    color='green'
-                    label='カルテ'
-                    style={{ fontSize: '10px' }}
-                  ></Button>
-                </Table.Cell>
-                <Table.Cell textAlign='center'>
-                  00001
-                  <br />
-                  49歳3ヶ月　女
-                </Table.Cell>
-                <Table.Cell>木村医師</Table.Cell>
-                <Table.Cell textAlign='center' style={{ padding: '0' }}>
-                  <Dropdown
-                    defaultValue='待合室'
-                    direction='right'
-                    options={statusOption}
-                  />
-                </Table.Cell>
-                <Table.Cell></Table.Cell>
-              </Table.Row>
-              <Table.Row>
-                <Table.Cell>0001</Table.Cell>
-                <Table.Cell textAlign='center'>
-                  内科
-                  <br />
-                  一般診療
-                </Table.Cell>
-                <Table.Cell>8:56</Table.Cell>
-                <Table.Cell textAlign='center' style={{ padding: '0' }}>
-                  <Label style={{}}>受付済み</Label>
-                </Table.Cell>
-                <Table.Cell textAlign='center'>
-                  キム　キム
-                  <br />
-                  金　金
-                </Table.Cell>
-                <Table.Cell textAlign='center' style={{ padding: '0' }}>
-                  <Button
-                    icon='desktop'
-                    color='green'
-                    label='カルテ'
-                    style={{ fontSize: '10px' }}
-                  ></Button>
-                </Table.Cell>
-                <Table.Cell textAlign='center'>
-                  00001
-                  <br />
-                  49歳3ヶ月　女
-                </Table.Cell>
-                <Table.Cell>木村医師</Table.Cell>
-                <Table.Cell textAlign='center' style={{ padding: '0' }}>
-                  <Dropdown
-                    defaultValue='待合室'
-                    direction='right'
-                    options={statusOption}
-                  />
-                </Table.Cell>
-                <Table.Cell></Table.Cell>
-              </Table.Row>
               <Table.Row>
                 <Table.Cell>0001</Table.Cell>
                 <Table.Cell textAlign='center'>
@@ -349,91 +200,13 @@ const AcceptanceList = () => {
                 <Table.HeaderCell width={1}>状態</Table.HeaderCell>
                 <Table.HeaderCell width={2}>名前</Table.HeaderCell>
                 <Table.HeaderCell width={1}></Table.HeaderCell>
-                <Table.HeaderCell width={2}>診療圏番号</Table.HeaderCell>
+                <Table.HeaderCell width={2}>診察券番号</Table.HeaderCell>
                 <Table.HeaderCell width={1}>担当医師</Table.HeaderCell>
                 <Table.HeaderCell width={1}>患者位置</Table.HeaderCell>
                 <Table.HeaderCell width={5}>受付コメント</Table.HeaderCell>
               </Table.Row>
             </Table.Header>
             <Table.Body>
-              <Table.Row>
-                <Table.Cell>0001</Table.Cell>
-                <Table.Cell textAlign='center'>
-                  内科
-                  <br />
-                  一般診療
-                </Table.Cell>
-                <Table.Cell>8:56</Table.Cell>
-                <Table.Cell textAlign='center' style={{ padding: '0' }}>
-                  <Label style={{}}>受付済み</Label>
-                </Table.Cell>
-                <Table.Cell textAlign='center'>
-                  キム　キム
-                  <br />
-                  金　金
-                </Table.Cell>
-                <Table.Cell textAlign='center' style={{ padding: '0' }}>
-                  <Button
-                    icon='desktop'
-                    color='green'
-                    label='カルテ'
-                    style={{ fontSize: '10px' }}
-                  ></Button>
-                </Table.Cell>
-                <Table.Cell textAlign='center'>
-                  00001
-                  <br />
-                  49歳3ヶ月　女
-                </Table.Cell>
-                <Table.Cell>木村医師</Table.Cell>
-                <Table.Cell textAlign='center' style={{ padding: '0' }}>
-                  <Dropdown
-                    defaultValue='待合室'
-                    direction='right'
-                    options={statusOption}
-                  />
-                </Table.Cell>
-                <Table.Cell></Table.Cell>
-              </Table.Row>
-              <Table.Row>
-                <Table.Cell>0001</Table.Cell>
-                <Table.Cell textAlign='center'>
-                  内科
-                  <br />
-                  一般診療
-                </Table.Cell>
-                <Table.Cell>8:56</Table.Cell>
-                <Table.Cell textAlign='center' style={{ padding: '0' }}>
-                  <Label style={{}}>受付済み</Label>
-                </Table.Cell>
-                <Table.Cell textAlign='center'>
-                  キム　キム
-                  <br />
-                  金　金
-                </Table.Cell>
-                <Table.Cell textAlign='center' style={{ padding: '0' }}>
-                  <Button
-                    icon='desktop'
-                    color='green'
-                    label='カルテ'
-                    style={{ fontSize: '10px' }}
-                  ></Button>
-                </Table.Cell>
-                <Table.Cell textAlign='center'>
-                  00001
-                  <br />
-                  49歳3ヶ月　女
-                </Table.Cell>
-                <Table.Cell>木村医師</Table.Cell>
-                <Table.Cell textAlign='center' style={{ padding: '0' }}>
-                  <Dropdown
-                    defaultValue='待合室'
-                    direction='right'
-                    options={statusOption}
-                  />
-                </Table.Cell>
-                <Table.Cell></Table.Cell>
-              </Table.Row>
               <Table.Row>
                 <Table.Cell>0001</Table.Cell>
                 <Table.Cell textAlign='center'>

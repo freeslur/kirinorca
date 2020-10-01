@@ -6,8 +6,10 @@ import {
   SidebarProps,
   Button,
 } from 'semantic-ui-react';
+import { useAccContext } from '../contexts/AccContext';
 
 const SearchPatients = ({ visible }: SidebarProps) => {
+  const accCtx = useAccContext();
   return (
     <Sidebar
       as={Container}
@@ -21,14 +23,18 @@ const SearchPatients = ({ visible }: SidebarProps) => {
     >
       <Container
         style={{
-          width: '100%',
-          height: '88vh',
+          height: '86.5vh',
           backgroundColor: '#ECEFF1',
-          padding: '0',
-          margin: '0',
         }}
         fluid
       >
+        <Container
+          style={{
+            height: 40,
+            backgroundColor: 'green',
+          }}
+          fluid
+        ></Container>
         <Table celled fixed>
           <Table.Header>
             <Table.Row>
@@ -50,81 +56,7 @@ const SearchPatients = ({ visible }: SidebarProps) => {
                   color='green'
                   label='カルテ'
                   style={{ fontSize: '10px' }}
-                ></Button>
-              </Table.Cell>
-              <Table.Cell>2000/01/01(H.12)</Table.Cell>
-              <Table.Cell>22際3カ月</Table.Cell>
-              <Table.Cell>男</Table.Cell>
-            </Table.Row>
-            <Table.Row>
-              <Table.Cell>00001</Table.Cell>
-              <Table.Cell>漢字　仮名（カンジ　カナ）</Table.Cell>
-              <Table.Cell textAlign='center' style={{ padding: '0' }}>
-                <Button
-                  icon='desktop'
-                  color='green'
-                  label='カルテ'
-                  style={{ fontSize: '10px' }}
-                ></Button>
-              </Table.Cell>
-              <Table.Cell>2000/01/01(H.12)</Table.Cell>
-              <Table.Cell>22際3カ月</Table.Cell>
-              <Table.Cell>男</Table.Cell>
-            </Table.Row>
-            <Table.Row>
-              <Table.Cell>00001</Table.Cell>
-              <Table.Cell>漢字　仮名（カンジ　カナ）</Table.Cell>
-              <Table.Cell textAlign='center' style={{ padding: '0' }}>
-                <Button
-                  icon='desktop'
-                  color='green'
-                  label='カルテ'
-                  style={{ fontSize: '10px' }}
-                ></Button>
-              </Table.Cell>
-              <Table.Cell>2000/01/01(H.12)</Table.Cell>
-              <Table.Cell>22際3カ月</Table.Cell>
-              <Table.Cell>男</Table.Cell>
-            </Table.Row>
-            <Table.Row>
-              <Table.Cell>00001</Table.Cell>
-              <Table.Cell>漢字　仮名（カンジ　カナ）</Table.Cell>
-              <Table.Cell textAlign='center' style={{ padding: '0' }}>
-                <Button
-                  icon='desktop'
-                  color='green'
-                  label='カルテ'
-                  style={{ fontSize: '10px' }}
-                ></Button>
-              </Table.Cell>
-              <Table.Cell>2000/01/01(H.12)</Table.Cell>
-              <Table.Cell>22際3カ月</Table.Cell>
-              <Table.Cell>男</Table.Cell>
-            </Table.Row>
-            <Table.Row>
-              <Table.Cell>00001</Table.Cell>
-              <Table.Cell>漢字　仮名（カンジ　カナ）</Table.Cell>
-              <Table.Cell textAlign='center' style={{ padding: '0' }}>
-                <Button
-                  icon='desktop'
-                  color='green'
-                  label='カルテ'
-                  style={{ fontSize: '10px' }}
-                ></Button>
-              </Table.Cell>
-              <Table.Cell>2000/01/01(H.12)</Table.Cell>
-              <Table.Cell>22際3カ月</Table.Cell>
-              <Table.Cell>男</Table.Cell>
-            </Table.Row>
-            <Table.Row>
-              <Table.Cell>00001</Table.Cell>
-              <Table.Cell>漢字　仮名（カンジ　カナ）</Table.Cell>
-              <Table.Cell textAlign='center' style={{ padding: '0' }}>
-                <Button
-                  icon='desktop'
-                  color='green'
-                  label='カルテ'
-                  style={{ fontSize: '10px' }}
+                  onClick={() => accCtx.actions.setDetailP(true)}
                 ></Button>
               </Table.Cell>
               <Table.Cell>2000/01/01(H.12)</Table.Cell>
