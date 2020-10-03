@@ -10,6 +10,7 @@ engine_f = create_engine(
     pool_recycle=3600,
     echo=True,
 )
+
 SessionLocalF = scoped_session(
     sessionmaker(
         bind=engine_f, expire_on_commit=False, autoflush=True, autocommit=False
@@ -17,3 +18,4 @@ SessionLocalF = scoped_session(
 )
 
 BaseF = declarative_base()
+BaseF.query = SessionLocalF.query_property()
