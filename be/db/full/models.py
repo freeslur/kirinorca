@@ -1,14 +1,17 @@
 import config
-from db.full.database import BaseF as Base
+from db.full.database import Base
 from orcalib.or_acceptances import ORAcceptance
-from sqlalchemy import Column, ForeignKey, String
-from sqlalchemy.sql.sqltypes import Integer
+from sqlalchemy import BigInteger, Column, ForeignKey, Integer, String
+from sqlalchemy.orm import relationship
 
 
 class Acceptance(Base):
     __tablename__ = "acceptances"
 
-    id = Column(Integer, autoincrement=True, primary_key=True)
+    acc_id = Column(
+        BigInteger().with_variant(Integer, "sqlite"),
+        primary_key=True,
+    )
     date = Column(String, primary_key=True)
     time = Column(String)
     pati_id = Column(String)
@@ -29,16 +32,17 @@ class Acceptance(Base):
     medi_contents = Column(String)
     place = Column(String)
     memo = Column(String)
+    insurances = relationship("AccInsurance", backref="acceptances")
 
 
 class AccInsurance(Base):
     __tablename__ = "accinsurances"
 
-    id = Column(Integer, autoincrement=True, primary_key=True)
-    acc_id = Column(Integer)
-    acc_date = Column(String)
-    acc_time = Column(String)
-    pati_id = Column(String)
+    accins_id = Column(
+        BigInteger().with_variant(Integer, "sqlite"),
+        primary_key=True,
+    )
+    acc_r_id = Column(Integer, ForeignKey("acceptances.acc_id"))
     no = Column(String)
     prov_class = Column(String)
     prov_no = Column(String)
@@ -49,13 +53,17 @@ class AccInsurance(Base):
     pers_name = Column(String)
     cert_sdate = Column(String)
     cert_exp_date = Column(String)
+    pub_insures = relationship("AccPubInsurance", backref="accinsurances")
 
 
 class AccPubInsurance(Base):
     __tablename__ = "accpubinsurances"
 
-    id = Column(Integer, autoincrement=True, primary_key=True)
-    acc_ins_id = Column(Integer)
+    accpubins_id = Column(
+        BigInteger().with_variant(Integer, "sqlite"),
+        primary_key=True,
+    )
+    acc_ins_id = Column(Integer, ForeignKey("accinsurances.accins_id"))
     pub_class = Column(String)
     pub_no = Column(String)
     pub_name = Column(String)
@@ -80,7 +88,7 @@ def test():
 
 class Patient(Base):
     __tablename__ = "patients"
-    id = Column(String(length=255), primary_key=True)
+    pati_id = Column(String(length=255), primary_key=True)
     sei = Column(String)
     mei = Column(String)
     sei_kana = Column(String)
@@ -89,6 +97,13 @@ class Patient(Base):
     sex = Column(String)
     reg_date = Column(String)
     mod_date = Column(String)
+    last_visit_date = Column(String)
+
+    def full_name(self):
+        return "{self.sei}　{self.mei}"
+
+    def full_name_kana(self):
+        return "{self.sei_kana}　{self.mei_kana}"
 
 
 class Department(Base):

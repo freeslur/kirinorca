@@ -3,26 +3,8 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from starlette.graphql import GraphQLApp
 
-from db.simple.database import SessionLocalS as session
-from db.simple.schemas import schema
-
-# from db.database import init, session
-# from serve.schema.schemas import schema
-
-
-# class Query(ObjectType):
-#     hello = String(name=String(default_value="stranger"))
-#     goodbye = String()
-
-#     def resolve_hello(self, info, name):
-#         return "Hello " + name
-
-#     def resolve_goodbye(root, info):
-#         return "See ya!"
-
-
-# schema = Schema(query=Query)
-
+from db.full import database
+from db.full.schema import schema
 
 app = FastAPI()
 
@@ -33,6 +15,8 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+database.Base.metadata.create_all(bind=database.engine)
 
 
 @app.get("/")
@@ -45,7 +29,8 @@ app.add_route("/gql", GraphQLApp(schema=schema))
 
 @app.on_event("shutdown")
 def shutdown_event():
-    session.remove()
+    print("Shutdown")
+    database.SessionLocalF.remove()
 
 
 if __name__ == "__main__":

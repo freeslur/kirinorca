@@ -3,7 +3,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import scoped_session, sessionmaker
 
-engine_f = create_engine(
+engine = create_engine(
     DATABASE_FULL_SQLITE3_URL,
     connect_args={"check_same_thread": False},
     encoding="utf-8",
@@ -11,11 +11,9 @@ engine_f = create_engine(
     echo=True,
 )
 
-SessionLocalF = scoped_session(
-    sessionmaker(
-        bind=engine_f, expire_on_commit=False, autoflush=True, autocommit=False
-    )
+SessionLocal = scoped_session(
+    sessionmaker(bind=engine, expire_on_commit=False, autoflush=True, autocommit=False)
 )
 
-BaseF = declarative_base()
-BaseF.query = SessionLocalF.query_property()
+Base = declarative_base()
+Base.query = SessionLocal.query_property()
