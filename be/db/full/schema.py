@@ -1,8 +1,9 @@
 from db.full import database
 from db.full.schema_acceptance import AcceptanceConnections
-from db.full.schema_patient import Patient, PatientConnections
+from db.full.schema_patient import ORPatient, Patient, PatientConnections
 from graphene import Field, List, Mutation, ObjectType, Schema, String, relay
 from graphene_sqlalchemy import SQLAlchemyConnectionField
+from orcalib.or_patient import get_list, get_new_list
 
 PatientModel = Patient._meta.model
 
@@ -94,15 +95,7 @@ class Query(ObjectType):
             PatientModel.pati_id.contains(kwargs.get("pati_id"))
         )
 
-    search_patient = List(
-        Patient,
-        pati_id=String(),
-        sei=String(),
-        mei=String(),
-        sei_kana=String(),
-        mei_kana=String(),
-        birth=String(),
-    )
+    search_patient = List(Patient)
 
     def resolve_search_patient(
         self,
@@ -125,6 +118,27 @@ class Query(ObjectType):
             PatientModel.birth.contains(birth),
         ).all()
         return result
+
+    init_pati_data = List(Patient)
+
+    def resolve_init_pati_data(self, info, **kwargs):
+        patient_query = Patient.get_query(info)
+        result = patient_query.all()
+        if len(result) == 0:
+            data = get_list()
+            sess = database.SessionLocal
+            sess.execute(PatientModel.__table__.insert(), data)
+            sess.commit()
+            result = patient_query.all()
+        return result
+
+    new_pati_list = List(ORPatient)
+
+    def resolve_new_pati_list(self, info, **kwargs):
+        # patient_query = Patient.get_query(info)
+        # result = patient_query.all()
+        data = get_new_list()
+        return data
 
 
 # Mutation
