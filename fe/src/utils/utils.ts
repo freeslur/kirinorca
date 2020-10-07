@@ -43,3 +43,32 @@ export const date_to_string = (date: Date | null) => {
   const dd = double_digit(date.getDate());
   return yyyy + '-' + MM + '-' + dd;
 };
+
+export const calc_age = (birth: string) => {
+  const birth_ymd = birth.split('-');
+  const dateNow = new Date();
+  const dateBirth = new Date(
+    parseInt(birth_ymd[0]),
+    parseInt(birth_ymd[1]) - 1,
+    parseInt(birth_ymd[2])
+  );
+  const dayTillNow =
+    (dateNow.getTime() - dateBirth.getTime()) / (1000 * 3600 * 24);
+  const DAYS_PER_MONTH = 365 / 12;
+  const ageY = Math.floor(dayTillNow / 365);
+  const ageM = Math.floor((dayTillNow - 365 * ageY) / DAYS_PER_MONTH);
+  return ageY.toString() + '歳' + ageM.toString() + 'ヵ月';
+};
+
+export const convert_to_wareki = (birth: string) => {
+  const birth_ymd = birth.split('-');
+  const dateBirth = new Date(
+    parseInt(birth_ymd[0]),
+    parseInt(birth_ymd[1]) - 1,
+    parseInt(birth_ymd[2])
+  );
+  const wareki = new Intl.DateTimeFormat('ja-JP-u-ca-japanese', {
+    era: 'narrow',
+  }).formatToParts(dateBirth);
+  return wareki[0].value + '.' + wareki[1].value;
+};

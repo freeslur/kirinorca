@@ -1,9 +1,14 @@
+import json
+
 from db.full import database
+from db.full.actions.patient_actions import diff_new
 from db.full.schema_acceptance import AcceptanceConnections
-from db.full.schema_patient import ORPatient, Patient, PatientConnections
+from db.full.schema_patient import (ORPatiDetail, ORPatient, Patient,
+                                    PatientConnections)
 from graphene import Field, List, Mutation, ObjectType, Schema, String, relay
 from graphene_sqlalchemy import SQLAlchemyConnectionField
-from orcalib.or_patient import get_list, get_new_list
+from orcalib.or_patient import ORPatient as ORPatientClass
+from orcalib.or_patient import get_list
 
 PatientModel = Patient._meta.model
 
@@ -132,13 +137,26 @@ class Query(ObjectType):
             result = patient_query.all()
         return result
 
-    new_pati_list = List(ORPatient)
+    new_pati_list = List(
+        ORPatient, start_date=String(required=True), end_date=String(required=True)
+    )
 
-    def resolve_new_pati_list(self, info, **kwargs):
+    def resolve_new_pati_list(self, info, start_date, end_date, **kwargs):
         # patient_query = Patient.get_query(info)
         # result = patient_query.all()
-        data = get_new_list()
+        data = diff_new(start_date, end_date)
         return data
+
+    pati_detail = Field(ORPatiDetail, pati_id=String(required=True))
+
+    def resolve_pati_detail(self, info, pati_id, **kwargs):
+        orp = ORPatientClass(pati_id=pati_id)
+        d = orp.get_info()
+        data = d["Patient_Information"] if "Patient_Information" in d.keys() else {}
+        ddata = dict()
+        ddata["data"]. = data
+        dd = json.loads(json.dumps(ddata))
+        return dd
 
 
 # Mutation
@@ -153,7 +171,6 @@ class InsertPatient(Mutation):
         sex = String(required=True)
         reg_date = String()
         mod_date = String()
-        last_visit_date = String()
 
     patient = Field(lambda: Patient)
 
@@ -169,9 +186,8 @@ class InsertPatient(Mutation):
         sex,
         reg_date,
         mod_date,
-        last_visit_date,
     ):
-        patients = Patient._meta.model(
+        patients = PatientModel(
             pati_id=pati_id,
             sei=sei,
             mei=mei,
@@ -181,7 +197,6 @@ class InsertPatient(Mutation):
             sex=sex,
             reg_date=reg_date,
             mod_date=mod_date,
-            last_visit_date=last_visit_date,
         )
         database.SessionLocal.add(patients)
         database.SessionLocal.commit()
@@ -190,22 +205,6 @@ class InsertPatient(Mutation):
 
 class Mutation(ObjectType):
     insert_patient = InsertPatient.Field()
-    check_patient = List(
-        Patient,
-        pati_id=String(),
-        sei=String(),
-        mei=String(),
-        sei_kana=String(),
-        mei_kana=String(),
-        birth=String(),
-    )
-
-    def resolve_check_patient(self, info, **kwargs):
-        query = Patient.get_query(info)
-        r = query.all()
-        if len(r) == 0:
-            print("pass")
-        return r
 
 
 schema = Schema(query=Query, mutation=Mutation, types=[Patient])

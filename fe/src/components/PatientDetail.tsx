@@ -1,4 +1,5 @@
-import React from 'react';
+import request from 'graphql-request';
+import React, { useEffect, useState } from 'react';
 import {
   Button,
   ButtonProps,
@@ -6,11 +7,34 @@ import {
   Sidebar,
   SidebarProps,
 } from 'semantic-ui-react';
+import { server_url } from '../api/Settings';
 import { useAccContext } from '../contexts/AccContext';
+import { PATIENT_DETAIL_GQ } from '../utils/graphql';
 import RegistAcceptance from './RegistAcceptance';
 
 const PatientDetail = ({ visible }: SidebarProps) => {
+  const [detailData, setDetailData] = useState<any>({});
   const accCtx = useAccContext();
+
+  const getPatiDetail = (patiId: string) => {
+    request(server_url, PATIENT_DETAIL_GQ(patiId))
+      .then((data: any) => {
+        console.log(data);
+        setDetailData(JSON.parse(data.patiDetail.data));
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  };
+
+  useEffect(() => {
+    console.log(accCtx.state.patiDetailId);
+    if (accCtx.state.patiDetailId !== '') {
+      getPatiDetail(accCtx.state.patiDetailId);
+    } else {
+      setDetailData({});
+    }
+  }, [accCtx.state.patiDetailId]);
 
   return (
     <Sidebar
@@ -34,7 +58,9 @@ const PatientDetail = ({ visible }: SidebarProps) => {
       <Button color='green' onClick={() => accCtx.actions.setDetailP(false)}>
         閉じる
       </Button>
-      <Segment>患者情報</Segment>
+      <Segment>{'患者情報:' + detailData.Patient_ID + '患者情報:'}</Segment>
+      {console.log(typeof detailData)}
+      <Segment>{detailData.Patient_ID}</Segment>
       <RegistAcceptance
         onClose={() => accCtx.actions.setOpenNewAcc(false)}
         onOpen={() => accCtx.actions.setOpenNewAcc(true)}

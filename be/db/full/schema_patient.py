@@ -10,6 +10,7 @@ class PatientAttribute:
     sei_kana = String(description="Patient Sei Kana")
     mei_kana = String(description="Patient Mei Kana")
     birth = String(description="Patient Birth Date")
+    sex = String(description="Patient Birth Date")
     reg_date = String(description="Patient Birth Date")
     mod_date = String(description="Patient Birth Date")
 
@@ -22,6 +23,13 @@ class Patient(SQLAlchemyObjectType, PatientAttribute):
 
 
 class ORPatient(ObjectType, PatientAttribute):
+    class Meta:
+        interfaces = (relay.Node,)
+
+
+class ORPatiDetail(ObjectType):
+    data = String()
+
     class Meta:
         interfaces = (relay.Node,)
 

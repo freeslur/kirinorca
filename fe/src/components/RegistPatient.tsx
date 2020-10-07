@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Button,
   ButtonProps,
@@ -13,12 +13,50 @@ import DatePicker, { registerLocale } from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import ja from 'date-fns/locale/ja';
 import { useAccContext } from '../contexts/AccContext';
+import { server_url } from '../api/Settings';
+import { NEW_PATIENT_GQ } from '../utils/graphql';
+import request from 'graphql-request';
+import { date_to_string } from '../utils/utils';
 registerLocale('ja', ja);
 
 const RegistPatient = ({ onClose, onOpen, open }: ModalProps) => {
   const [startDate, setStartDate] = useState<any>(new Date());
   const [endDate, setEndDate] = useState<any>(new Date());
   const accCtx = useAccContext();
+
+  const getNewbieData = (startDate: string, endDate: string) => {
+    request(server_url, NEW_PATIENT_GQ(startDate, endDate))
+      .then((data: any) => {
+        accCtx.actions.setNewbieData(data['newPatiList']);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  };
+
+  useEffect(() => {
+    if (accCtx.state.openNew) {
+      getNewbieData(date_to_string(startDate), date_to_string(endDate));
+    } else {
+      accCtx.actions.setNewbieData([]);
+    }
+  }, [accCtx.state.openNew]);
+
+  const handleSearch = () => {
+    getNewbieData(date_to_string(startDate), date_to_string(endDate));
+  };
+
+  const handleRegist = () => {
+    alert('登録完了');
+  };
+
+  const handleRegAndAcc = () => {
+    alert('受付完了');
+  };
+
+  const handleRegAndReserv = () => {
+    alert('予約完了');
+  };
 
   return (
     <Modal size='fullscreen' onClose={onClose} onOpen={onOpen} open={open}>
@@ -56,7 +94,9 @@ const RegistPatient = ({ onClose, onOpen, open }: ModalProps) => {
                       />
                     }
                   />
-                  <Form.Button color='green'>検索する</Form.Button>
+                  <Form.Button color='green' onClick={handleSearch}>
+                    検索する
+                  </Form.Button>
                 </Form.Group>
               </Form>
             </Grid.Column>
@@ -76,50 +116,62 @@ const RegistPatient = ({ onClose, onOpen, open }: ModalProps) => {
                   </Table.Row>
                 </Table.Header>
                 <Table.Body>
-                  <Table.Row>
-                    <Table.Cell>00023</Table.Cell>
-                    <Table.Cell>金　帰無</Table.Cell>
-                    <Table.Cell>キム　キム</Table.Cell>
-                    <Table.Cell>1983-08-08</Table.Cell>
-                    <Table.Cell>男</Table.Cell>
-                    <Table.Cell>2019-11-20</Table.Cell>
-                    <Table.Cell>
-                      <Button
-                        icon='pencil'
-                        content='登録'
-                        color='green'
-                        style={{ margin: '0 10px' }}
-                      ></Button>
-                      <Button
-                        icon='desktop'
-                        content='受付'
-                        color='blue'
-                        label={{
-                          as: 'a',
-                          icon: 'pencil',
-                          color: 'green',
-                          pointing: 'right',
-                          content: '登録',
-                        }}
-                        labelPosition='left'
-                        style={{ margin: '0 10px' }}
-                      ></Button>
-                      <Button
-                        icon='calendar outline'
-                        content='予約'
-                        color='blue'
-                        label={{
-                          as: 'a',
-                          icon: 'pencil',
-                          color: 'green',
-                          pointing: 'right',
-                          content: '登録',
-                        }}
-                        labelPosition='left'
-                        style={{ margin: '0 10px' }}
-                      ></Button>
-                    </Table.Cell>
-                  </Table.Row>
+                  {accCtx.state.newbieData.map((data: any) => {
+                    console.log(data);
+                    return (
+                      <Table.Row key={data.patiId}>
+                        <Table.Cell>{data.patiId}</Table.Cell>
+                        <Table.Cell>{data.sei + '　' + data.mei}</Table.Cell>
+                        <Table.Cell>
+                          {data.seiKana + '　' + data.meiKana}
+                        </Table.Cell>
+                        <Table.Cell>{data.birth}</Table.Cell>
+                        <Table.Cell>
+                          {data.sex !== '1' ? '男' : '女'}
+                        </Table.Cell>
+                        <Table.Cell>{data.regDate}</Table.Cell>
+                        <Table.Cell>
+                          <Button
+                            icon='pencil'
+                            content='登録'
+                            color='green'
+                            style={{ margin: '0 10px' }}
+                            onClick={handleRegist}
+                          ></Button>
+                          <Button
+                            icon='desktop'
+                            content='受付'
+                            color='blue'
+                            label={{
+                              as: 'a',
+                              icon: 'pencil',
+                              color: 'green',
+                              pointing: 'right',
+                              content: '登録',
+                            }}
+                            labelPosition='left'
+                            style={{ margin: '0 10px' }}
+                            onClick={handleRegAndAcc}
+                          ></Button>
+                          <Button
+                            icon='calendar outline'
+                            content='予約'
+                            color='blue'
+                            label={{
+                              as: 'a',
+                              icon: 'pencil',
+                              color: 'green',
+                              pointing: 'right',
+                              content: '登録',
+                            }}
+                            labelPosition='left'
+                            style={{ margin: '0 10px' }}
+                            onClick={handleRegAndReserv}
+                          ></Button>
+                        </Table.Cell>
+                      </Table.Row>
+                    );
+                  })}
                 </Table.Body>
               </Table>
             </Grid.Column>

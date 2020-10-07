@@ -71,18 +71,18 @@ def get_list():
     return result
 
 
-def get_new_list():
+def get_new_list(start_date, end_date):
     result = []
     p_data = {
-        "Base_StartDate": "2020-10-01",
-        "Base_EndDate": "2020-10-10",
+        "Base_StartDate": start_date,
+        "Base_EndDate": end_date,
     }
     post_data = req_to_xml(req_key="patientlst1req", req_data=p_data)
 
     json_data = post_request(
         api_uri=orca.patient_new, res_key="patientlst1res", post_data=post_data
     )
-    if len(json_data["Patient_Information"]) != 0:
+    if "Patient_Information" in json_data.keys():
         for data in json_data["Patient_Information"]:
             name = data["WholeName"].split("　")
             name_kana = data["WholeName_inKana"].split("　")
@@ -91,12 +91,12 @@ def get_new_list():
                     "birth": data["BirthDate"],
                     "pati_id": data["Patient_ID"],
                     "sex": data["Sex"],
-                    "sei": name[0],
-                    "mei": name[1],
-                    "sei_kana": name_kana[0],
-                    "mei_kana": name_kana[1],
-                    "reg_date": date_to_string(datetime.now()),
-                    "mod_date": date_to_string(datetime.now()),
+                    "sei": name[0] if len(name) > 0 else "",
+                    "mei": name[1] if len(name) > 1 else "",
+                    "sei_kana": name_kana[0] if len(name_kana) > 0 else "",
+                    "mei_kana": name_kana[1] if len(name_kana) > 1 else "",
+                    "reg_date": data["CreateDate"],
+                    "mod_date": data["UpdateDate"],
                 }
             )
     return result

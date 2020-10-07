@@ -1,4 +1,5 @@
-import React from 'react';
+import request from 'graphql-request';
+import React, { useEffect } from 'react';
 import {
   Sidebar,
   Table,
@@ -6,10 +7,34 @@ import {
   SidebarProps,
   Button,
 } from 'semantic-ui-react';
+import { server_url } from '../api/Settings';
 import { useAccContext } from '../contexts/AccContext';
+import { ALL_PATIENTS_GQ } from '../utils/graphql';
+import { calc_age, convert_to_wareki } from '../utils/utils';
 
 const SearchPatients = ({ visible }: SidebarProps) => {
   const accCtx = useAccContext();
+
+  const allPatiData = () => {
+    request(server_url, ALL_PATIENTS_GQ)
+      .then((data: any) => {
+        console.log(data);
+        const patiData = data.allPatients.edges;
+        accCtx.actions.setAllPatiData(patiData);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  };
+
+  useEffect(() => {
+    if (accCtx.state.searched) {
+      allPatiData();
+    } else {
+      accCtx.actions.setNewbieData([]);
+    }
+  }, [accCtx.state.searched]);
+
   return (
     <Sidebar
       as={Container}
@@ -47,22 +72,41 @@ const SearchPatients = ({ visible }: SidebarProps) => {
             </Table.Row>
           </Table.Header>
           <Table.Body>
-            <Table.Row>
-              <Table.Cell>00001</Table.Cell>
-              <Table.Cell>漢字　仮名（カンジ　カナ）</Table.Cell>
-              <Table.Cell textAlign='center' style={{ padding: '0' }}>
-                <Button
-                  icon='desktop'
-                  color='green'
-                  label='カルテ'
-                  style={{ fontSize: '10px' }}
-                  onClick={() => accCtx.actions.setDetailP(true)}
-                ></Button>
-              </Table.Cell>
-              <Table.Cell>2000/01/01(H.12)</Table.Cell>
-              <Table.Cell>22際3カ月</Table.Cell>
-              <Table.Cell>男</Table.Cell>
-            </Table.Row>
+            {accCtx.state.allPatiData.map((patiData: any) => {
+              const patiD = patiData.node;
+              return (
+                <Table.Row>
+                  <Table.Cell>{patiD.patiId}</Table.Cell>
+                  <Table.Cell>
+                    {patiD.sei +
+                      '　' +
+                      patiD.mei +
+                      '（' +
+                      patiD.seiKana +
+                      '　' +
+                      patiD.meiKana +
+                      '）'}
+                  </Table.Cell>
+                  <Table.Cell textAlign='center' style={{ padding: '0' }}>
+                    <Button
+                      icon='desktop'
+                      color='green'
+                      label='カルテ'
+                      style={{ fontSize: '10px' }}
+                      onClick={() => {
+                        accCtx.actions.setPatiDetailId(patiD.patiId);
+                        accCtx.actions.setDetailP(true);
+                      }}
+                    ></Button>
+                  </Table.Cell>
+                  <Table.Cell>
+                    {patiD.birth + '（' + convert_to_wareki(patiD.birth) + '）'}
+                  </Table.Cell>
+                  <Table.Cell>{calc_age(patiD.birth)}</Table.Cell>
+                  <Table.Cell>{patiD.sex === '1' ? '男' : '女'}</Table.Cell>
+                </Table.Row>
+              );
+            })}
           </Table.Body>
         </Table>
       </Container>

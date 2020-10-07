@@ -1,0 +1,20 @@
+schema:
+  - http://127.0.0.1:5000/gql
+
+documents: ['query.graphql']
+
+generates:
+  ./src/generated/graphql.ts:
+    plugins:
+      - typescript
+      - typescript-operations
+      - typescript-react-apollo
+    config:
+      withHOC: false
+      withComponent: false
+      withHooks: true
+      scalars:
+        Time: string
+    hooks:
+      afterOneFileWrite:
+        - npx eslint --fix

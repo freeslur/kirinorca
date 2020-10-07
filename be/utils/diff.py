@@ -18,6 +18,7 @@ class AccDiff:
                     chgds.append(adds[addi])
                     adds.pop(addi)
                     rmds.pop(rmdi)
+                    break
         self.added_data = adds
         self.removed_data = rmds
         self.changed_data = chgds
@@ -51,26 +52,21 @@ class PatiDiff:
         chgds = []
         for rmdi in reversed(range(len(rmds))):
             for addi in reversed(range(len(adds))):
-                if adds[addi]["Acceptance_ID"] == rmds[rmdi]["Acceptance_ID"]:
+                if adds[addi]["pati_id"] == rmds[rmdi]["pati_id"]:
                     chgds.append(adds[addi])
                     adds.pop(addi)
-                    rmds.pop(rmdi)
+                    break
         self.added_data = adds
-        self.removed_data = rmds
         self.changed_data = chgds
         pprint(
             {
                 "add": self.added_data,
                 "change": self.changed_data,
-                "remove": self.removed_data,
             }
         )
 
     def added(self):
         return self.added_data
-
-    def removed(self):
-        return self.removed_data
 
     def changed(self):
         return self.changed_data

@@ -16,6 +16,9 @@ type AccContextType = {
     openNew: boolean;
     openNewAcc: boolean;
     changeStatus: ChangeStatusType;
+    newbieData: any;
+    allPatiData: any;
+    patiDetailId: string;
   };
   actions: {
     setSearched: (flag: boolean) => void;
@@ -30,6 +33,9 @@ type AccContextType = {
       pati_id,
       code,
     }: ChangeStatusType) => void;
+    setNewbieData: (data: any) => void;
+    setAllPatiData: (data: any) => void;
+    setPatiDetailId: (patiId: string) => void;
   };
 };
 
@@ -47,6 +53,9 @@ const AccContext = createContext<AccContextType>({
       pati_id: '',
       code: -1,
     },
+    newbieData: [],
+    allPatiData: [],
+    patiDetailId: '',
   },
   actions: {
     setSearched: () => {},
@@ -54,6 +63,9 @@ const AccContext = createContext<AccContextType>({
     setOpenNew: () => {},
     setOpenNewAcc: () => {},
     setChangeStatus: () => {},
+    setNewbieData: () => {},
+    setAllPatiData: () => {},
+    setPatiDetailId: () => {},
   },
 });
 
@@ -74,6 +86,10 @@ export const AccContextProvider = ({
     pati_id: '',
     code: -1,
   });
+  const [newbieData, setNewbieData] = useState([]);
+  const [allPatiData, setAllPatiData] = useState([]);
+  const [patiDetailId, setPatiDetailId] = useState('');
+
   const value: AccContextType = {
     state: {
       searched: searched,
@@ -81,6 +97,9 @@ export const AccContextProvider = ({
       openNew: openNew,
       openNewAcc: openNewAcc,
       changeStatus: changeStatus,
+      newbieData: newbieData,
+      allPatiData: allPatiData,
+      patiDetailId: patiDetailId,
     },
     actions: {
       setSearched: setSearched,
@@ -88,6 +107,9 @@ export const AccContextProvider = ({
       setOpenNew: setOpenNew,
       setOpenNewAcc: setOpenNewAcc,
       setChangeStatus: setChangeStatus,
+      setNewbieData: setNewbieData,
+      setAllPatiData: setAllPatiData,
+      setPatiDetailId: setPatiDetailId,
     },
   };
   return <AccContext.Provider value={value}>{children}</AccContext.Provider>;
