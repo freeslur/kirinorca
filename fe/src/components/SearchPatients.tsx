@@ -33,6 +33,7 @@ const SearchPatients = ({ visible }: SidebarProps) => {
     } else {
       accCtx.actions.setNewbieData([]);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [accCtx.state.searched]);
 
   return (
@@ -75,7 +76,7 @@ const SearchPatients = ({ visible }: SidebarProps) => {
             {accCtx.state.allPatiData.map((patiData: any) => {
               const patiD = patiData.node;
               return (
-                <Table.Row>
+                <Table.Row key={patiD.patiId}>
                   <Table.Cell>{patiD.patiId}</Table.Cell>
                   <Table.Cell>
                     {patiD.sei +

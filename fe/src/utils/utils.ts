@@ -45,30 +45,71 @@ export const date_to_string = (date: Date | null) => {
 };
 
 export const calc_age = (birth: string) => {
-  const birth_ymd = birth.split('-');
-  const dateNow = new Date();
-  const dateBirth = new Date(
-    parseInt(birth_ymd[0]),
-    parseInt(birth_ymd[1]) - 1,
-    parseInt(birth_ymd[2])
-  );
-  const dayTillNow =
-    (dateNow.getTime() - dateBirth.getTime()) / (1000 * 3600 * 24);
-  const DAYS_PER_MONTH = 365 / 12;
-  const ageY = Math.floor(dayTillNow / 365);
-  const ageM = Math.floor((dayTillNow - 365 * ageY) / DAYS_PER_MONTH);
-  return ageY.toString() + '歳' + ageM.toString() + 'ヵ月';
+  if (birth !== undefined) {
+    const birth_ymd = birth.split('-');
+    const dateNow = new Date();
+    const dateBirth = new Date(
+      parseInt(birth_ymd[0]),
+      parseInt(birth_ymd[1]) - 1,
+      parseInt(birth_ymd[2])
+    );
+    const dayTillNow =
+      (dateNow.getTime() - dateBirth.getTime()) / (1000 * 3600 * 24);
+    const DAYS_PER_MONTH = 365 / 12;
+    const ageY = Math.floor(dayTillNow / 365);
+    const ageM = Math.floor((dayTillNow - 365 * ageY) / DAYS_PER_MONTH);
+    return ageY.toString() + '歳' + ageM.toString() + 'ヵ月';
+  }
+  return 'エラー';
 };
 
-export const convert_to_wareki = (birth: string) => {
-  const birth_ymd = birth.split('-');
-  const dateBirth = new Date(
-    parseInt(birth_ymd[0]),
-    parseInt(birth_ymd[1]) - 1,
-    parseInt(birth_ymd[2])
-  );
-  const wareki = new Intl.DateTimeFormat('ja-JP-u-ca-japanese', {
-    era: 'narrow',
-  }).formatToParts(dateBirth);
-  return wareki[0].value + '.' + wareki[1].value;
+export const convert_jp_date = (birth: string, wa = false, age = false) => {
+  if (birth !== undefined) {
+    const birth_ymd = birth.split('-');
+    return (
+      birth_ymd[0] +
+      (wa ? '(' + convert_to_wareki(birth, 'short') + ')' : '') +
+      '年' +
+      birth_ymd[1] +
+      '月' +
+      birth_ymd[2] +
+      '日' +
+      (age ? ' ' + calc_age(birth) : '')
+    );
+  }
+  return 'エラー';
+};
+
+export const convert_sex = (sex_code: string) => {
+  if (sex_code !== undefined) {
+    return sex_code === '1' ? '男' : '女';
+  }
+  return 'エラー';
+};
+
+export const convert_to_wareki = (birth: string, era = 'narrow') => {
+  if (birth !== undefined) {
+    const birth_ymd = birth.split('-');
+    const dateBirth = new Date(
+      parseInt(birth_ymd[0]),
+      parseInt(birth_ymd[1]) - 1,
+      parseInt(birth_ymd[2])
+    );
+    const wareki = new Intl.DateTimeFormat('ja-JP-u-ca-japanese', {
+      era: era,
+    });
+    switch (era) {
+      case 'narrow': {
+        const wa_data = wareki.formatToParts(dateBirth);
+        return wa_data[0].value + '.' + wa_data[1].value;
+      }
+      case 'short': {
+        const wa_data = wareki.formatToParts(dateBirth);
+        return wa_data[0].value + wa_data[1].value;
+      }
+      default:
+        return 'エラー';
+    }
+  }
+  return 'エラー';
 };

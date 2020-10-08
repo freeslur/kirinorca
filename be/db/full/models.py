@@ -32,6 +32,7 @@ class Acceptance(Base):
     medi_contents = Column(String)
     place = Column(String)
     memo = Column(String)
+    ins_id = Column(Integer, ForeignKey("accinsurances.accins_id"))
     insurances = relationship("AccInsurance", backref="acceptances")
 
 

@@ -11,8 +11,14 @@ import {
 } from 'semantic-ui-react';
 import { Input } from 'antd';
 import 'antd/dist/antd.css';
+import { useAccContext } from '../contexts/AccContext';
+import { convert_jp_date, convert_sex } from '../utils/utils';
+import request from 'graphql-request';
+import { server_url } from '../api/Settings';
+import { REGIST_ACCEPTANCE_GQ } from '../utils/graphql';
 
 const RegistAcceptance = ({ onClose, onOpen, open }: ModalProps) => {
+  const accCtx = useAccContext();
   const options = [
     { key: '1', text: '一般診療', value: '一般診療' },
     { key: '2', text: '予防接種', value: '予防接種' },
@@ -28,6 +34,23 @@ const RegistAcceptance = ({ onClose, onOpen, open }: ModalProps) => {
     { key: '3', text: '木林医師３', value: '木林医師３' },
   ];
 
+  const handleRegist = () => {
+    // regist action
+    request(server_url, REGIST_ACCEPTANCE_GQ(accCtx.state.detailData))
+      .then((data: any) => {
+        console.log(data);
+        const patiData = data.allPatients.edges;
+        accCtx.actions.setAllPatiData(patiData);
+        accCtx.actions.setOpenNewAcc(false);
+        accCtx.actions.setDetailData({});
+        accCtx.actions.setDetailP(false);
+        accCtx.actions.setSearched(false);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  };
+
   return (
     <Modal
       size='small'
@@ -42,27 +65,37 @@ const RegistAcceptance = ({ onClose, onOpen, open }: ModalProps) => {
           <Card.Header
             style={{ padding: '10px', color: 'green', fontWeight: 'bold' }}
           >
-            診察券番号
+            {'診察券番号: ' + accCtx.state.detailData.Patient_ID}
           </Card.Header>
           <Card.Content>
             <Grid>
               <Grid.Row style={{ height: 30 }}>
                 <Grid.Column width={3}>氏名</Grid.Column>
-                <Grid.Column width={13}>金　帰無</Grid.Column>
+                <Grid.Column width={13}>
+                  {accCtx.state.detailData.WholeName}
+                </Grid.Column>
               </Grid.Row>
               <Grid.Row style={{ height: 30 }}>
                 <Grid.Column width={3}></Grid.Column>
-                <Grid.Column width={13}>キム　キム</Grid.Column>
+                <Grid.Column width={13}>
+                  {accCtx.state.detailData.WholeName_inKana}
+                </Grid.Column>
               </Grid.Row>
               <Grid.Row style={{ height: 30 }}>
                 <Grid.Column width={3}>生年月日</Grid.Column>
                 <Grid.Column width={13}>
-                  1972(昭和47)年8月10日 47際2ヵ月
+                  {convert_jp_date(
+                    accCtx.state.detailData.BirthDate,
+                    true,
+                    true
+                  )}
                 </Grid.Column>
               </Grid.Row>
               <Grid.Row style={{ height: 30 }}>
                 <Grid.Column width={3}>性別</Grid.Column>
-                <Grid.Column width={13}>女</Grid.Column>
+                <Grid.Column width={13}>
+                  {convert_sex(accCtx.state.detailData.Sex)}
+                </Grid.Column>
               </Grid.Row>
               <Grid.Row style={{ height: 40 }}>
                 <Grid.Column width={3}>診療種別</Grid.Column>
@@ -112,8 +145,10 @@ const RegistAcceptance = ({ onClose, onOpen, open }: ModalProps) => {
         </Card>
       </Modal.Content>
       <Modal.Actions style={{ textAlign: 'center' }}>
-        <Button>キャンセル</Button>
-        <Button color='green'>
+        <Button onClick={() => accCtx.actions.setOpenNewAcc(false)}>
+          キャンセル
+        </Button>
+        <Button color='green' onClick={handleRegist}>
           <Icon name='pencil' />
           受付する
         </Button>

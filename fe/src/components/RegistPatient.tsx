@@ -4,6 +4,7 @@ import {
   ButtonProps,
   Form,
   Grid,
+  Input,
   Modal,
   ModalProps,
   Table,
@@ -40,6 +41,7 @@ const RegistPatient = ({ onClose, onOpen, open }: ModalProps) => {
     } else {
       accCtx.actions.setNewbieData([]);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [accCtx.state.openNew]);
 
   const handleSearch = () => {
@@ -74,7 +76,7 @@ const RegistPatient = ({ onClose, onOpen, open }: ModalProps) => {
                     dateFormat='yyyy-MM-dd'
                     placeholderText='Click'
                     customInput={
-                      <Form.Input
+                      <Input
                         icon='calendar outline'
                         style={{ color: 'green' }}
                       />
@@ -88,7 +90,7 @@ const RegistPatient = ({ onClose, onOpen, open }: ModalProps) => {
                     dateFormat='yyyy-MM-dd'
                     placeholderText='Click'
                     customInput={
-                      <Form.Input
+                      <Input
                         icon='calendar outline'
                         style={{ color: 'green' }}
                       />

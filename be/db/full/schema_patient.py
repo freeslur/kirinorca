@@ -1,5 +1,6 @@
 from db.full.models import Patient as PatientModel
 from graphene import ObjectType, String, relay
+from graphene.types.generic import GenericScalar
 from graphene_sqlalchemy import SQLAlchemyObjectType
 
 
@@ -28,7 +29,7 @@ class ORPatient(ObjectType, PatientAttribute):
 
 
 class ORPatiDetail(ObjectType):
-    data = String()
+    data = GenericScalar()
 
     class Meta:
         interfaces = (relay.Node,)

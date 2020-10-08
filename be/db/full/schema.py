@@ -1,10 +1,9 @@
-import json
+from pprint import pprint
 
 from db.full import database
 from db.full.actions.patient_actions import diff_new
 from db.full.schema_acceptance import AcceptanceConnections
-from db.full.schema_patient import (ORPatiDetail, ORPatient, Patient,
-                                    PatientConnections)
+from db.full.schema_patient import ORPatiDetail, ORPatient, Patient, PatientConnections
 from graphene import Field, List, Mutation, ObjectType, Schema, String, relay
 from graphene_sqlalchemy import SQLAlchemyConnectionField
 from orcalib.or_patient import ORPatient as ORPatientClass
@@ -154,9 +153,9 @@ class Query(ObjectType):
         d = orp.get_info()
         data = d["Patient_Information"] if "Patient_Information" in d.keys() else {}
         ddata = dict()
-        ddata["data"]. = data
-        dd = json.loads(json.dumps(ddata))
-        return dd
+        ddata["data"] = data
+        print(ddata)
+        return ddata
 
 
 # Mutation
@@ -203,8 +202,52 @@ class InsertPatient(Mutation):
         return InsertPatient(patient=patients)
 
 
+class InsertAcceptance(Mutation):
+    class Arguments:
+        pati_id = String(required=True)
+        sei = String(required=True)
+        mei = String(required=True)
+        sei_kana = String(required=True)
+        mei_kana = String(required=True)
+        birth = String(required=True)
+        sex = String(required=True)
+        reg_date = String()
+        mod_date = String()
+
+    patient = Field(lambda: Patient)
+
+    def mutate(
+        self,
+        info,
+        pati_id,
+        sei,
+        mei,
+        sei_kana,
+        mei_kana,
+        birth,
+        sex,
+        reg_date,
+        mod_date,
+    ):
+        patients = PatientModel(
+            pati_id=pati_id,
+            sei=sei,
+            mei=mei,
+            sei_kana=sei_kana,
+            mei_kana=mei_kana,
+            birth=birth,
+            sex=sex,
+            reg_date=reg_date,
+            mod_date=mod_date,
+        )
+        database.SessionLocal.add(patients)
+        database.SessionLocal.commit()
+        return InsertPatient(patient=patients)
+
+
 class Mutation(ObjectType):
     insert_patient = InsertPatient.Field()
+    insert_acceptance = InsertAcceptance.Field()
 
 
 schema = Schema(query=Query, mutation=Mutation, types=[Patient])

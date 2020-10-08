@@ -43,6 +43,14 @@ export const PATIENT_DETAIL_GQ = (patiId: string) => {
 }`;
 };
 
+export const REGIST_ACCEPTANCE_GQ = (data: any) => {
+  return `{
+  patiDetail(patiId: "${data}") {
+    data
+  }
+}`;
+};
+
 export const ALL_PATIENTS_GQ = `{
     allPatients{
       edges{
