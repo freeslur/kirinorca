@@ -1,8 +1,7 @@
 import config
 from db.full.database import Base
 from orcalib.or_acceptances import ORAcceptance
-from sqlalchemy import BigInteger, Column, ForeignKey, Integer, String
-from sqlalchemy.orm import relationship
+from sqlalchemy import JSON, BigInteger, Column, Integer, String
 
 
 class Acceptance(Base):
@@ -32,49 +31,7 @@ class Acceptance(Base):
     medi_contents = Column(String)
     place = Column(String)
     memo = Column(String)
-    ins_id = Column(Integer, ForeignKey("accinsurances.accins_id"))
-    insurances = relationship("AccInsurance", backref="acceptances")
-
-
-class AccInsurance(Base):
-    __tablename__ = "accinsurances"
-
-    accins_id = Column(
-        BigInteger().with_variant(Integer, "sqlite"),
-        primary_key=True,
-    )
-    acc_r_id = Column(Integer, ForeignKey("acceptances.acc_id"))
-    no = Column(String)
-    prov_class = Column(String)
-    prov_no = Column(String)
-    prov_name = Column(String)
-    pers_symb = Column(String)
-    pers_no = Column(String)
-    relation_to = Column(String)
-    pers_name = Column(String)
-    cert_sdate = Column(String)
-    cert_exp_date = Column(String)
-    pub_insures = relationship("AccPubInsurance", backref="accinsurances")
-
-
-class AccPubInsurance(Base):
-    __tablename__ = "accpubinsurances"
-
-    accpubins_id = Column(
-        BigInteger().with_variant(Integer, "sqlite"),
-        primary_key=True,
-    )
-    acc_ins_id = Column(Integer, ForeignKey("accinsurances.accins_id"))
-    pub_class = Column(String)
-    pub_no = Column(String)
-    pub_name = Column(String)
-    pub_per_no = Column(String)
-    rate_adm = Column(String)
-    money_adm = Column(String)
-    rate_outpati = Column(String)
-    money_outpati = Column(String)
-    cert_idate = Column(String)
-    cert_exp_date = Column(String)
+    insurance = Column(JSON)
 
 
 def get_or_acc_data():

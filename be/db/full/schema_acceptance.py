@@ -1,9 +1,11 @@
 from db.full.models import Acceptance as AcceptanceModel
-from graphene import String, relay
+from graphene import Int, String, relay
+from graphene.types.generic import GenericScalar
 from graphene_sqlalchemy import SQLAlchemyObjectType
 
 
 class AcceptanceAttribute:
+    acc_id = Int()
     date = String()
     time = String()
     pati_id = String()
@@ -24,7 +26,7 @@ class AcceptanceAttribute:
     medi_contents = String()
     place = String()
     memo = String()
-    insurances = relationship("AccInsurance", backref="acceptances")
+    insurance = GenericScalar()
 
 
 # Acceptance

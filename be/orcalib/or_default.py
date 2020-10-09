@@ -10,6 +10,8 @@ delete_patient = "/orca12/patientmodv2?class=03"
 acceptance_all_list = "/api01rv2/acceptlstv2?class=03"
 acceptance_cancel = "/orca11/acceptmodv2"
 regist_receipt = "/api21/medicalmodv2?class=01"
+department_info = "/api01rv2/system01lstv2?class=01"
+physician_info = "/api01rv2/system01lstv2?class=02"
 
 
 post_headers = {"Content-Type": "application/xml"}
