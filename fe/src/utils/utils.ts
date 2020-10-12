@@ -44,6 +44,14 @@ export const date_to_string = (date: Date | null) => {
   return yyyy + '-' + MM + '-' + dd;
 };
 
+export const time_to_string = (date: Date | null) => {
+  if (date === null) return '';
+  const hh = double_digit(date.getHours());
+  const mm = double_digit(date.getMinutes());
+  const ss = double_digit(date.getSeconds());
+  return hh + ':' + mm + ':' + ss;
+};
+
 export const calc_age = (birth: string) => {
   if (birth !== undefined) {
     const birth_ymd = birth.split('-');

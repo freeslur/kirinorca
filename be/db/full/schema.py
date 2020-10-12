@@ -23,44 +23,21 @@ class Query(ObjectType):
 
     all_acceptances = SQLAlchemyConnectionField(AcceptanceConnections)
 
+    # Patient List
     patients = List(Patient, pati_id=List(String))
 
     def resolve_patients(self, info, pati_id=[], **kwargs):
-        patient_query = Patient.get_query(info)
-        data = patient_query.filter(PatientModel.pati_id.in_(pati_id))
-        return {"data": data}
-
-    # acceptances = List(Patient, pati_id=List(String))
-
-    # def resolve_patients(self, info, pati_id=[], **kwargs):
-    #     patient_query = Patient.get_query(info)
-    #     data = patient_query.filter(PatientModel.pati_id.in_(pati_id))
-    #     return {"data": data}
-
-    search_patient = List(Patient)
-
-    def resolve_search_patient(
-        self,
-        info,
-        pati_id="",
-        sei="",
-        mei="",
-        sei_kana="",
-        mei_kana="",
-        birth="",
-        **kwargs
-    ):
         query = Patient.get_query(info)
-        result = query.filter(
-            PatientModel.pati_id.contains(pati_id),
-            PatientModel.sei.contains(sei),
-            PatientModel.mei.contains(mei),
-            PatientModel.sei_kana.contains(sei_kana),
-            PatientModel.mei_kana.contains(mei_kana),
-            PatientModel.birth.contains(birth),
-        ).all()
+        result = (
+            query.filter(
+                PatientModel.pati_id.in_(pati_id),
+            ).all()
+            if len(pati_id) != 0
+            else query.all()
+        )
         return result
 
+    # New Patient List
     new_pati_list = List(
         ORPatient, start_date=String(required=True), end_date=String(required=True)
     )
@@ -69,6 +46,7 @@ class Query(ObjectType):
         data = diff_new(start_date, end_date)
         return data
 
+    # Patient Detail
     pati_detail = Field(ORPatiDetail, pati_id=String(required=True))
 
     def resolve_pati_detail(self, info, pati_id, **kwargs):
@@ -80,6 +58,10 @@ class Query(ObjectType):
             else {}
         )
         return {"data": data}
+
+    #
+    #
+    # Department
 
     get_department = List(Department, code=List(String))
 
@@ -93,6 +75,10 @@ class Query(ObjectType):
             else query.all()
         )
         return result
+
+    #
+    #
+    # Physician
 
     get_physician = List(Physician, code=List(String))
 
@@ -235,6 +221,7 @@ class Mutation(ObjectType):
     insert_patient = InsertPatient.Field()
     insert_acceptance = InsertAcceptance.Field()
 
+    # Initialize Data
     init_pati_data = List(Patient)
 
     def resolve_init_pati_data(self, info, **kwargs):
@@ -256,7 +243,6 @@ class Mutation(ObjectType):
         if len(result) == 0:
             ors = ORSystem(system_code="01")
             data = ors.get_info()
-            print("depart : ", data)
             sess = database.SessionLocal
             sess.execute(DepartmentModel.__table__.insert(), data)
             sess.commit()
@@ -271,7 +257,6 @@ class Mutation(ObjectType):
         if len(result) == 0:
             ors = ORSystem(system_code="02")
             data = ors.get_info()
-            print("phys : ", data)
             sess = database.SessionLocal
             sess.execute(PhysicianModel.__table__.insert(), data)
             sess.commit()

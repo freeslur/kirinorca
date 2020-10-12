@@ -25,7 +25,6 @@ const AcceptanceList = () => {
   ) => {
     const { index } = titleProps;
     const newIndex = activeIndex === index ? -1 : index;
-    console.log(newIndex);
     setActiveIndex(newIndex);
   };
 

@@ -119,7 +119,6 @@ const RegistPatient = ({ onClose, onOpen, open }: ModalProps) => {
                 </Table.Header>
                 <Table.Body>
                   {accCtx.state.newbieData.map((data: any) => {
-                    console.log(data);
                     return (
                       <Table.Row key={data.patiId}>
                         <Table.Cell>{data.patiId}</Table.Cell>

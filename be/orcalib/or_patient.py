@@ -60,9 +60,9 @@ def get_list():
                         "pati_id": data["Patient_ID"],
                         "sex": data["Sex"],
                         "sei": name[0],
-                        "mei": name[1],
+                        "mei": name[1] if len(name) > 1 else "",
                         "sei_kana": name_kana[0],
-                        "mei_kana": name_kana[1],
+                        "mei_kana": name_kana[1] if len(name_kana) > 1 else "",
                         "reg_date": date_to_string(datetime.now()),
                         "mod_date": date_to_string(datetime.now()),
                     }

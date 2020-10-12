@@ -9,6 +9,80 @@ type ChangeStatusType = {
   code?: number;
 };
 
+type PublicInsuranceInformationType = {
+  PublicInsurance_Class?: string;
+  PublicInsurance_Name?: string;
+  PublicInsurer_Number?: string;
+  PublicInsuredPerson_Number?: string;
+  Certificate_IssuedDate?: string;
+  Certificate_ExpiredDate?: string;
+};
+
+type HealthInsuranceInformationType = {
+  Insurance_Combination_Number?: string;
+  InsuranceProvider_Class?: string;
+  InsuranceProvider_Number?: string;
+  InsuranceProvider_WholeName?: string;
+  HealthInsuredPerson_Symbol?: string;
+  HealthInsuredPerson_Number?: string;
+  HealthInsuredPerson_Continuation?: string;
+  HealthInsuredPerson_Assistance?: string;
+  RelationToInsuredPerson?: string;
+  HealthInsuredPerson_WholeName?: string;
+  Certificate_StartDate?: string;
+  Certificate_ExpiredDate?: string;
+  PublicInsuranceInformation?: PublicInsuranceInformationType;
+};
+
+type MedicationinfoType = {
+  Medication_Code: string;
+  Medication_Name: string;
+  Medication_Number: string;
+  Medication_Generic_Flg: string;
+};
+
+type MedicalInformationType = {
+  Medical_Class: string;
+  Medical_Class_Name: string;
+  Medical_Class_Number: string;
+  Medication_info?: MedicationinfoType[];
+};
+
+type DiseaseInformationType = {
+  Disease_Code?: string;
+  Disease_Name?: string;
+  Disease_Single?: {
+    Disease_Single_Code: string;
+    Disease_Single_Name: string;
+  }[];
+  Disease_Supplement?: {
+    Disease_Scode1?: string;
+    Disease_Scode2?: string;
+    Disease_Scode3?: string;
+    Disease_Sname?: string;
+  };
+  Disease_Category?: string;
+  Disease_SuspectedFlag?: string;
+  Disease_StartDate: string;
+  Disease_EndDate: string;
+  Disease_OutCome?: string;
+};
+
+type DiagnosisInformationType = {
+  Department_Code: string;
+  Physician_Code: string;
+  HealthInsurance_Information: HealthInsuranceInformationType;
+  Medical_Information: MedicalInformationType[];
+  Disease_Information: DiseaseInformationType[];
+};
+
+type AccountType = {
+  Patient_ID: string;
+  Perform_Date?: string;
+  Perform_Time?: string;
+  DiagnosisInformation: DiagnosisInformationType;
+};
+
 type AccContextType = {
   state: {
     searched: boolean;
@@ -18,6 +92,8 @@ type AccContextType = {
     changeStatus: ChangeStatusType;
     newbieData: any;
     allPatiData: any;
+    allPhysData: any;
+    allDepartData: any;
     patiDetailId: string;
     detailData: any;
   };
@@ -36,6 +112,8 @@ type AccContextType = {
     }: ChangeStatusType) => void;
     setNewbieData: (data: any) => void;
     setAllPatiData: (data: any) => void;
+    setAllPhysData: (data: any) => void;
+    setAllDepartData: (data: any) => void;
     setPatiDetailId: (patiId: string) => void;
     setDetailData: (data: any) => void;
   };
@@ -57,6 +135,8 @@ const AccContext = createContext<AccContextType>({
     },
     newbieData: [],
     allPatiData: [],
+    allPhysData: [],
+    allDepartData: [],
     patiDetailId: '',
     detailData: '',
   },
@@ -68,6 +148,8 @@ const AccContext = createContext<AccContextType>({
     setChangeStatus: () => {},
     setNewbieData: () => {},
     setAllPatiData: () => {},
+    setAllPhysData: () => {},
+    setAllDepartData: () => {},
     setPatiDetailId: () => {},
     setDetailData: () => {},
   },
@@ -92,6 +174,8 @@ export const AccContextProvider = ({
   });
   const [newbieData, setNewbieData] = useState([]);
   const [allPatiData, setAllPatiData] = useState([]);
+  const [allPhysData, setAllPhysData] = useState([]);
+  const [allDepartData, setAllDepartData] = useState([]);
   const [patiDetailId, setPatiDetailId] = useState('');
   const [detailData, setDetailData] = useState({});
 
@@ -104,6 +188,8 @@ export const AccContextProvider = ({
       changeStatus: changeStatus,
       newbieData: newbieData,
       allPatiData: allPatiData,
+      allPhysData: allPhysData,
+      allDepartData: allDepartData,
       patiDetailId: patiDetailId,
       detailData: detailData,
     },
@@ -115,6 +201,8 @@ export const AccContextProvider = ({
       setChangeStatus: setChangeStatus,
       setNewbieData: setNewbieData,
       setAllPatiData: setAllPatiData,
+      setAllPhysData: setAllPhysData,
+      setAllDepartData: setAllDepartData,
       setPatiDetailId: setPatiDetailId,
       setDetailData: setDetailData,
     },

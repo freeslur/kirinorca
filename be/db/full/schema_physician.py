@@ -6,6 +6,8 @@ from graphene_sqlalchemy import SQLAlchemyObjectType
 class PhysicianAttribute:
     code = String(description="Physician Code")
     name = String(description="Physician Name")
+    depart_code1 = String(description="Department Code")
+    depart_code2 = String(description="Department Code")
 
 
 # Physician

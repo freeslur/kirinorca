@@ -1,7 +1,8 @@
 import config
 from db.full.database import Base
 from orcalib.or_acceptances import ORAcceptance
-from sqlalchemy import JSON, BigInteger, Column, Integer, String
+from sqlalchemy import JSON, BigInteger, Column, ForeignKey, Integer, String
+from sqlalchemy.orm import relationship
 
 
 class Acceptance(Base):
@@ -66,11 +67,17 @@ class Patient(Base):
 
 class Department(Base):
     __tablename__ = "departments"
-    code = Column(String(length=255), primary_key=True)
-    name = Column(String(length=255))
+    code = Column(String, primary_key=True)
+    name = Column(String)
 
 
 class Physician(Base):
     __tablename__ = "physician"
-    code = Column(String(length=255), primary_key=True)
-    name = Column(String(length=255))
+    code = Column(String, primary_key=True)
+    name = Column(String)
+    depart_code1 = Column(String, ForeignKey("departments.code"))
+    depart1 = relationship("Department", foreign_keys=[depart_code1])
+    depart_code2 = Column(String, ForeignKey("departments.code"))
+    depart2 = relationship("Department", foreign_keys=[depart_code2])
+    # depart_code2 = Column(String, ForeignKey("departments.code"))
+    # depart2 = relationship("Department", back_populates="physician")

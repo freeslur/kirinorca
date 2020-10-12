@@ -31,7 +31,16 @@ class ORSystem:
             ]
             if self.system_code == "01"
             else [
-                {"code": dd["Code"], "name": dd["WholeName"]}
+                {
+                    "code": dd["Code"],
+                    "name": dd["WholeName"],
+                    "depart_code1": dd["Department_Code1"]
+                    if "Department_Code1" in dd.keys()
+                    else "",
+                    "depart_code2": dd["Department_Code2"]
+                    if "Department_Code2" in dd.keys()
+                    else "",
+                }
                 for dd in json_data["Physician_Information"]
             ]
         )

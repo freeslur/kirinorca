@@ -18,8 +18,7 @@ const SearchPatients = ({ visible }: SidebarProps) => {
   const allPatiData = () => {
     request(server_url, ALL_PATIENTS_GQ)
       .then((data: any) => {
-        console.log(data);
-        const patiData = data.allPatients.edges;
+        const patiData = data.patients;
         accCtx.actions.setAllPatiData(patiData);
       })
       .catch((err) => {
@@ -74,18 +73,17 @@ const SearchPatients = ({ visible }: SidebarProps) => {
           </Table.Header>
           <Table.Body>
             {accCtx.state.allPatiData.map((patiData: any) => {
-              const patiD = patiData.node;
               return (
-                <Table.Row key={patiD.patiId}>
-                  <Table.Cell>{patiD.patiId}</Table.Cell>
+                <Table.Row key={patiData.patiId}>
+                  <Table.Cell>{patiData.patiId}</Table.Cell>
                   <Table.Cell>
-                    {patiD.sei +
+                    {patiData.sei +
                       '　' +
-                      patiD.mei +
+                      patiData.mei +
                       '（' +
-                      patiD.seiKana +
+                      patiData.seiKana +
                       '　' +
-                      patiD.meiKana +
+                      patiData.meiKana +
                       '）'}
                   </Table.Cell>
                   <Table.Cell textAlign='center' style={{ padding: '0' }}>
@@ -95,16 +93,19 @@ const SearchPatients = ({ visible }: SidebarProps) => {
                       label='カルテ'
                       style={{ fontSize: '10px' }}
                       onClick={() => {
-                        accCtx.actions.setPatiDetailId(patiD.patiId);
+                        accCtx.actions.setPatiDetailId(patiData.patiId);
                         accCtx.actions.setDetailP(true);
                       }}
                     ></Button>
                   </Table.Cell>
                   <Table.Cell>
-                    {patiD.birth + '（' + convert_to_wareki(patiD.birth) + '）'}
+                    {patiData.birth +
+                      '（' +
+                      convert_to_wareki(patiData.birth) +
+                      '）'}
                   </Table.Cell>
-                  <Table.Cell>{calc_age(patiD.birth)}</Table.Cell>
-                  <Table.Cell>{patiD.sex === '1' ? '男' : '女'}</Table.Cell>
+                  <Table.Cell>{calc_age(patiData.birth)}</Table.Cell>
+                  <Table.Cell>{patiData.sex === '1' ? '男' : '女'}</Table.Cell>
                 </Table.Row>
               );
             })}
