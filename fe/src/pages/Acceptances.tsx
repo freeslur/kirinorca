@@ -1,16 +1,77 @@
-import React, { FC } from 'react';
+import request from 'graphql-request';
+import React, { FC, useEffect, useState } from 'react';
 import { Form, Grid, Sidebar } from 'semantic-ui-react';
+import { server_url } from '../api/Settings';
 import AcceptanceList from '../components/AcceptanceList';
 import PatientDetail from '../components/PatientDetail';
 import RegistPatient from '../components/RegistPatient';
 import SearchPatients from '../components/SearchPatients';
 import Toolbar from '../components/Toolbar';
 import { useAccContext } from '../contexts/AccContext';
+import { GET_DEPARTMENT_GQ, GET_PHYSICIAN_GQ } from '../utils/graphql';
 
 const dropdownOptions = [{ key: 'all', text: 'すべて', value: 'all' }];
 
 const Acceptances: FC = () => {
   const accCtx = useAccContext();
+  const [options1, setOptions1] = useState([
+    { key: 'all', text: 'すべて', value: 'all' },
+  ]);
+  const [options2, setOptions2] = useState([
+    {
+      key: 'all',
+      text: 'すべて',
+      value: 'all',
+      depart1_code: '',
+      depart1_name: '',
+      depart2_code: '',
+      depart2_name: '',
+    },
+  ]);
+
+  const allDepartment = () => {
+    request(server_url, GET_DEPARTMENT_GQ([]))
+      .then((data) => {
+        const departData = data.getDepartment;
+        const departList = departData.map((dd: any) => {
+          return { key: dd.code, text: dd.name, value: dd.code };
+        });
+        accCtx.actions.setAllDepartData(departList);
+        setOptions1(options1.concat(departList));
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  };
+
+  const allPhysician = () => {
+    request(server_url, GET_PHYSICIAN_GQ([]))
+      .then((data) => {
+        const physData = data.getPhysician;
+        const physList = physData.map((dd: any) => {
+          return {
+            key: dd.code,
+            text: dd.name,
+            value: dd.code,
+            depart1_code: dd.depart1.code,
+            depart1_name: dd.depart1.name,
+            depart2_code: dd.depart2 !== null ? dd.depart2.code : '',
+            depart2_name: dd.depart2 !== null ? dd.depart2.name : '',
+          };
+        });
+        accCtx.actions.setAllPhysData(physList);
+        setOptions2(options2.concat(physList));
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  };
+
+  useEffect(() => {
+    allDepartment();
+    allPhysician();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <div>
@@ -42,7 +103,7 @@ const Acceptances: FC = () => {
                             <Form.Group inline>
                               <Form.Dropdown
                                 label='診療科：'
-                                options={dropdownOptions}
+                                options={options1}
                                 defaultValue={'all'}
                                 selection
                                 style={{ backgroundColor: '#ECEFF1' }}
@@ -56,10 +117,13 @@ const Acceptances: FC = () => {
                               />
                               <Form.Dropdown
                                 label='担当医師：'
-                                options={dropdownOptions}
+                                options={options2}
                                 defaultValue={'all'}
                                 selection
-                                style={{ backgroundColor: '#ECEFF1' }}
+                                style={{
+                                  backgroundColor: '#ECEFF1',
+                                  width: 160,
+                                }}
                               />
                             </Form.Group>
                           </Form>

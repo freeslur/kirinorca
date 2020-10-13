@@ -22,11 +22,30 @@ export const PATIENT_DETAIL_GQ = (patiId: string) => {
 };
 
 export const REGIST_ACCEPTANCE_GQ = (data: any) => {
-  return `{
-  patiDetail(patiId: "${data}") {
-    data
-  }
-}`;
+  console.log(data.insurance);
+  return `mutation{
+    insertAcceptance(reqData: {date:"${data.date}",
+          time:"${data.time}",
+          patiId:"${data.pati_id}",
+          patiSei:"${data.pati_sei}",
+          patiMei:"${data.pati_mei}",
+          patiSeiKana:"${data.pati_sei_kana}",
+          patiMeiKana:"${data.pati_mei_kana}",
+          patiBirth:"${data.pati_birth}",
+          patiSex:"${data.pati_sex}",
+          status:"${data.status}",
+          departCode:"${data.depart_code}",
+          departName:"${data.depart_name}",
+          physicCode:"${data.physic_code}",
+          physicName:"${data.physic_name}",
+          mediContents:"${data.medi_contents}",
+          place:"${data.place}",
+          insurance:${JSON.stringify(data.insurance)}}){
+        id
+        date
+        insurance
+    }
+  }`;
 };
 
 export const GET_PHYSICIAN_GQ = (phys: string[]) => {

@@ -19,14 +19,15 @@ import {
   date_to_string,
   time_to_string,
 } from '../utils/utils';
+import { ACC_MEDICALS, PLACE_OPTIONS, STATUS } from '../api/var';
 import request from 'graphql-request';
 import { server_url } from '../api/Settings';
-import { GET_PHYSICIAN_GQ, GET_DEPARTMENT_GQ } from '../utils/graphql';
+import { PATIENT_DETAIL_GQ, REGIST_ACCEPTANCE_GQ } from '../utils/graphql';
 
 type AccDataType = {
   date?: string;
   time?: string;
-  pati_id?: string;
+  pati_id: string;
   pati_sei?: string;
   pati_mei?: string;
   pati_sei_kana?: string;
@@ -36,74 +37,45 @@ type AccDataType = {
   status?: string;
   depart_code?: string;
   depart_name?: string;
-  physic_code?: string;
+  physic_code: string;
   physic_name?: string;
   appoint_id?: string;
   appoint_time?: string;
   account_time?: string;
-  medi_contents?: any;
+  medi_contents?: string;
   place?: string;
   memo?: string;
   insurance?: any;
 };
 
-type physOptionsType = {
-  key: string;
-  text: string;
-  value: string;
-};
-
 const RegistAcceptance = ({ onClose, onOpen, open }: ModalProps) => {
   const [radioSelValue, setRadioSelValue] = useState('10001');
-  const [physOptions, setPhysOptions] = useState<physOptionsType[]>([]);
   // const [accData, setAccData] = useState<AccDataType>({});
   const accCtx = useAccContext();
-  const options = [
-    { key: '1', text: '一般診療', value: '一般診療' },
-    { key: '2', text: '予防接種', value: '予防接種' },
-    { key: '3', text: '健診・検診', value: '健診・検診' },
-  ];
-  const options2 = [
-    { key: '1', text: '待合室', value: '待合室' },
-    { key: '2', text: '健診・検診', value: '健診・検診' },
-  ];
-  let accData: AccDataType = { physic_code: '10001', place: '待合室' };
-
-  const allPhysician = () => {
-    request(server_url, GET_PHYSICIAN_GQ([]))
-      .then((data) => {
-        const physData: any[] = data.getPhysician;
-        accCtx.actions.setAllPhysData(physData);
-        const physList = physData.map((dd) => {
-          if (dd.code === accData.physic_code) {
-            accData.depart_code = dd.depart1.code;
-            accData.depart_name = dd.depart1.name;
-            setRadioSelValue(dd.depart1.code);
-          }
-          return { key: dd.code, text: dd.name, value: dd.code };
-        });
-        setPhysOptions(physList);
-      })
-      .catch((err) => {
-        console.log(err);
-      });
+  let accData: AccDataType = {
+    pati_id: '',
+    physic_code: '10001',
+    place: '待合室',
   };
 
-  const allDepartment = () => {
-    request(server_url, GET_DEPARTMENT_GQ([]))
-      .then((data) => {
-        accCtx.actions.setAllDepartData(data.getDepartment);
-      })
-      .catch((err) => {
-        console.log(err);
-      });
+  const checkDepart = (physValue: string) => {
+    const physData = accCtx.state.allPhysData.find((fd: any) => {
+      return fd.key === physValue;
+    });
+    console.log(physData);
+    if (physData !== undefined) {
+      accData.physic_code = physData.key;
+      accData.physic_name = physData.text;
+      accData.depart_code = physData.depart1_code;
+      accData.depart_name = physData.depart1_name;
+      setRadioSelValue(physData.depart1_code);
+    }
   };
 
   useEffect(() => {
-    allPhysician();
-    allDepartment();
+    checkDepart(radioSelValue);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [accCtx.state.allPhysData]);
 
   const handleRegist = () => {
     // regist action
@@ -125,32 +97,33 @@ const RegistAcceptance = ({ onClose, onOpen, open }: ModalProps) => {
     const date = new Date();
     accData.date = date_to_string(date);
     accData.time = time_to_string(date);
-    console.log(accData);
-    // request(server_url, REGIST_ACCEPTANCE_GQ(accCtx.state.detailData))
-    //   .then((data: any) => {
-    //     console.log(data);
-    //     const patiData = data.allPatients.edges;
-    //     accCtx.actions.setAllPatiData(patiData);
-    //     accCtx.actions.setOpenNewAcc(false);
-    //     accCtx.actions.setDetailData({});
-    //     accCtx.actions.setDetailP(false);
-    //     accCtx.actions.setSearched(false);
-    //   })
-    //   .catch((err) => {
-    //     console.log(err);
-    //   });
+    accData.status = STATUS[0]['text'];
+    checkDepart(accData.physic_code);
+    request(server_url, PATIENT_DETAIL_GQ(accData.pati_id))
+      .then((data: any) => {
+        accData.insurance = data.patiDetail.data.HealthInsurance_Information[0];
+        request(server_url, REGIST_ACCEPTANCE_GQ(accData))
+          .then((data: any) => {
+            console.log(data);
+            // const patiData = data.allPatients.edges;
+            // accCtx.actions.setAllPatiData(patiData);
+            // accCtx.actions.setOpenNewAcc(false);
+            // accCtx.actions.setDetailData({});
+            // accCtx.actions.setDetailP(false);
+            // accCtx.actions.setSearched(false);
+          })
+          .catch((err) => {
+            console.log(err);
+          });
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
 
   const handleDropdownChange = (event: any, data: any) => {
     const physValue = data.value;
-    const physData = accCtx.state.allPhysData.find((fd: any) => {
-      return fd.code === physValue;
-    });
-    accData.physic_code = physData.code;
-    accData.physic_name = physData.name;
-    accData.depart_code = physData.depart1.code;
-    accData.depart_name = physData.depart1.name;
-    setRadioSelValue(physData.depart1.code);
+    checkDepart(physValue);
   };
 
   return (
@@ -211,24 +184,25 @@ const RegistAcceptance = ({ onClose, onOpen, open }: ModalProps) => {
                   <Dropdown
                     placeholder='一般診療、予防接種、健診・検診'
                     multiple
-                    options={options}
+                    options={ACC_MEDICALS}
                     onChange={(event, data) => {
-                      accData.medi_contents = data.value;
+                      if (
+                        data.value !== null &&
+                        typeof data.value === 'object'
+                      ) {
+                        const dd = data.value;
+                        accData.medi_contents = dd.join();
+                      }
                     }}
                   ></Dropdown>
                 </Grid.Column>
               </Grid.Row>
               <Grid.Row style={{ height: 30 }}>
                 <Grid.Column width={3}>患者位置</Grid.Column>
-                <Grid.Column
-                  width={13}
-                  defaultValue='待合室'
-                  options={options2}
-                >
-                  {' '}
+                <Grid.Column width={13}>
                   <Dropdown
                     defaultValue='待合室'
-                    options={options2}
+                    options={PLACE_OPTIONS}
                     onChange={(event, data) => {
                       accData.place = data.value?.toString();
                     }}
@@ -240,7 +214,7 @@ const RegistAcceptance = ({ onClose, onOpen, open }: ModalProps) => {
                 <Grid.Column width={13}>
                   <Dropdown
                     defaultValue={accData.physic_code}
-                    options={physOptions}
+                    options={accCtx.state.allPhysData}
                     onChange={handleDropdownChange}
                   ></Dropdown>
                 </Grid.Column>
@@ -251,15 +225,15 @@ const RegistAcceptance = ({ onClose, onOpen, open }: ModalProps) => {
                   {accCtx.state.allDepartData.map((dd: any) => {
                     return (
                       <Radio
-                        key={dd.code}
-                        label={dd.name}
+                        key={dd.key}
+                        label={dd.text}
                         style={{ marginRight: 10 }}
                         name='selectedDepartment'
-                        checked={radioSelValue === dd.code}
+                        checked={radioSelValue === dd.key}
                         onClick={() => {
-                          accData.depart_code = dd.code;
-                          accData.depart_name = dd.name;
-                          setRadioSelValue(dd.code);
+                          accData.depart_code = dd.key;
+                          accData.depart_name = dd.text;
+                          setRadioSelValue(dd.key);
                         }}
                         // disabled={
                         //   !(

@@ -138,88 +138,101 @@ class InsertPatient(Mutation):
         return InsertPatient(patient=patients)
 
 
-class InsertAcceptance(Mutation):
-    class Arguments:
-        date = String(required=True)
-        time = String(required=True)
-        pati_id = String(required=True)
-        pati_sei = String(required=True)
-        pati_mei = String(required=True)
-        pati_sei_kana = String(required=True)
-        pati_mei_kana = String(required=True)
-        pati_birth = String(required=True)
-        pati_sex = String(required=True)
-        status = String()
-        depart_code = String(required=True)
-        depart_name = String()
-        physic_code = String(required=True)
-        physic_name = String()
-        appoint_id = String()
-        appoint_time = String()
-        account_time = String()
-        medi_contents = String()
-        place = String()
-        memo = String()
-        insurance = GenericScalar(required=True)
+# class InsertAcceptance(Mutation):
+#     class Arguments:
+#         date = String(required=True)
+#         time = String(required=True)
+#         pati_id = String(required=True)
+#         pati_sei = String(required=True)
+#         pati_mei = String(required=True)
+#         pati_sei_kana = String(required=True)
+#         pati_mei_kana = String(required=True)
+#         pati_birth = String(required=True)
+#         pati_sex = String(required=True)
+#         status = String()
+#         depart_code = String(required=True)
+#         depart_name = String()
+#         physic_code = String(required=True)
+#         physic_name = String()
+#         appoint_id = String()
+#         appoint_time = String()
+#         account_time = String()
+#         medi_contents = String()
+#         place = String()
+#         memo = String()
+#         insurance = GenericScalar(required=True)
 
-    acceptance = Field(lambda: Acceptance)
+#     acceptance = Field(lambda: Acceptance)
 
-    def mutate(
-        self,
-        info,
-        date,
-        time,
-        pati_id,
-        pati_sei,
-        pati_mei,
-        pati_sei_kana,
-        pati_mei_kana,
-        pati_birth,
-        pati_sex,
-        status,
-        depart_code,
-        depart_name,
-        physic_code,
-        physic_name,
-        appoint_id,
-        appoint_time,
-        account_time,
-        medi_contents,
-        place,
-        memo,
-        insurance,
-    ):
-        acceptances = AcceptanceModel(
-            date=date,
-            time=time,
-            pati_id=pati_id,
-            pati_sei=pati_sei,
-            pati_mei=pati_mei,
-            pati_sei_kana=pati_sei_kana,
-            pati_mei_kana=pati_mei_kana,
-            pati_birth=pati_birth,
-            pati_sex=pati_sex,
-            status=status,
-            depart_code=depart_code,
-            depart_name=depart_name,
-            physic_code=physic_code,
-            physic_name=physic_name,
-            appoint_id=appoint_id,
-            appoint_time=appoint_time,
-            account_time=account_time,
-            medi_contents=medi_contents,
-            place=place,
-            memo=memo,
-            insurance=insurance,
-        )
-        database.SessionLocal.add(acceptances)
-        database.SessionLocal.commit()
-        return InsertAcceptance(acceptance=acceptances)
+#     def mutate(
+#         self,
+#         info,
+#         date,
+#         time,
+#         pati_id,
+#         pati_sei,
+#         pati_mei,
+#         pati_sei_kana,
+#         pati_mei_kana,
+#         pati_birth,
+#         pati_sex,
+#         status,
+#         depart_code,
+#         depart_name,
+#         physic_code,
+#         physic_name,
+#         medi_contents,
+#         place,
+#         insurance,
+#         appoint_id="",
+#         appoint_time="",
+#         account_time="",
+#         memo="",
+#     ):
+#         acceptances = AcceptanceModel(
+#             date=date,
+#             time=time,
+#             pati_id=pati_id,
+#             pati_sei=pati_sei,
+#             pati_mei=pati_mei,
+#             pati_sei_kana=pati_sei_kana,
+#             pati_mei_kana=pati_mei_kana,
+#             pati_birth=pati_birth,
+#             pati_sex=pati_sex,
+#             status=status,
+#             depart_code=depart_code,
+#             depart_name=depart_name,
+#             physic_code=physic_code,
+#             physic_name=physic_name,
+#             appoint_id=appoint_id,
+#             appoint_time=appoint_time,
+#             account_time=account_time,
+#             medi_contents=medi_contents,
+#             place=place,
+#             memo=memo,
+#             insurance=insurance,
+#         )
+#         database.SessionLocal.add(acceptances)
+#         database.SessionLocal.commit()
+#         return InsertAcceptance(acceptance=acceptances)
 
 
 class Mutation(ObjectType):
     insert_patient = InsertPatient.Field()
-    insert_acceptance = InsertAcceptance.Field()
+    # insert_acceptance = InsertAcceptance.Field()
+
+    # Insert Acceptance
+    insert_acceptance = Field(Acceptance, req_data=GenericScalar())
+
+    def resolve_insert_acceptance(self, info, req_data, **kwargs):
+        print(req_data)
+        # data = get_list()
+        # sess = database.SessionLocal
+        # sess.execute(PatientModel.__table__.insert(), data)
+        # sess.commit()
+        query = Acceptance.get_query(info)
+        result = query.first()
+        return result
 
     # Initialize Data
     init_pati_data = List(Patient)

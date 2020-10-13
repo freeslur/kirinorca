@@ -1,18 +1,15 @@
 import config
 from db.full.database import Base
 from orcalib.or_acceptances import ORAcceptance
-from sqlalchemy import JSON, BigInteger, Column, ForeignKey, Integer, String
+from sqlalchemy import JSON, Column, ForeignKey, Integer, String
 from sqlalchemy.orm import relationship
 
 
 class Acceptance(Base):
     __tablename__ = "acceptances"
-
-    acc_id = Column(
-        BigInteger().with_variant(Integer, "sqlite"),
-        primary_key=True,
-    )
-    date = Column(String, primary_key=True)
+    __table_args__ = {"sqlite_autoincrement": True}
+    id = Column(Integer, primary_key=True)
+    date = Column(String)
     time = Column(String)
     pati_id = Column(String)
     pati_sei = Column(String)

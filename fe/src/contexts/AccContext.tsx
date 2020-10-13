@@ -155,11 +155,7 @@ const AccContext = createContext<AccContextType>({
   },
 });
 
-export const AccContextProvider = ({
-  children,
-}: {
-  children: React.ReactNode;
-}) => {
+export const AccContextProvider: React.FC = ({ children }) => {
   const [searched, setSearched] = useState(false);
   const [detailP, setDetailP] = useState(false);
   const [openNew, setOpenNew] = useState(false);
