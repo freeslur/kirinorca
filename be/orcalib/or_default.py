@@ -12,6 +12,10 @@ acceptance_cancel = "/orca11/acceptmodv2"
 regist_receipt = "/api21/medicalmodv2?class=01"
 department_info = "/api01rv2/system01lstv2?class=01"
 physician_info = "/api01rv2/system01lstv2?class=02"
+# 会計待ち（日付）
+wait_accounting = "/api01rv2/tmedicalgetv2"
+# 会計済み（日付、患者ID）
+ended_account = "/api01rv2/medicalgetv2?class=01"
 
 
 post_headers = {"Content-Type": "application/xml"}

@@ -1,15 +1,29 @@
+from datetime import datetime
+from pprint import pprint
+
+import orcalib.or_default as orca
 from db.full import database
 from db.full.actions.patient_actions import diff_new
-from db.full.schema_acceptance import Acceptance, AcceptanceConnections
+from db.full.schema_acceptance import Acceptance
 from db.full.schema_department import Department
 from db.full.schema_patient import ORPatiDetail, ORPatient, Patient
 from db.full.schema_physician import Physician
-from graphene import Field, List, Mutation, ObjectType, Schema, String, relay
+from graphene import (
+    Field,
+    InputObjectType,
+    List,
+    Mutation,
+    ObjectType,
+    Schema,
+    String,
+    relay,
+)
 from graphene.types.generic import GenericScalar
-from graphene_sqlalchemy import SQLAlchemyConnectionField
 from orcalib.or_patient import ORPatient as ORPatientClass
 from orcalib.or_patient import get_list
 from orcalib.or_system import ORSystem
+from orcalib.or_utils import post_request, req_to_xml
+from utils.date import date_to_string
 
 PatientModel = Patient._meta.model
 AcceptanceModel = Acceptance._meta.model
@@ -21,7 +35,78 @@ PhysicianModel = Physician._meta.model
 class Query(ObjectType):
     node = relay.Node.Field()
 
-    all_acceptances = SQLAlchemyConnectionField(AcceptanceConnections)
+    # Acceptance List
+    acceptances = List(Acceptance, status=List(String))
+
+    def resolve_acceptances(self, info, status=["診療待ち", "会計待ち", "会計済み"], **kwargs):
+        query = Acceptance.get_query(info)
+        wait_post_d = req_to_xml(
+            req_key="tmedicalgetreq",
+            req_data={
+                "Perform_Date": "",
+            },
+        )
+
+        wait_json_d = post_request(
+            api_uri=orca.wait_accounting,
+            res_key="tmedicalgetres",
+            post_data=wait_post_d,
+        )
+        if "Tmedical_List_Information" in wait_json_d:
+            pprint(wait_json_d)
+            for dd in wait_json_d["Tmedical_List_Information"]:
+                query.filter(
+                    AcceptanceModel.date == date_to_string(datetime.now())
+                ).filter(
+                    AcceptanceModel.pati_id == dd["Patient_Information"]["Patient_ID"]
+                ).filter(
+                    AcceptanceModel.depart_code == dd["Department_Code"]
+                ).filter(
+                    AcceptanceModel.physic_code == dd["Physician_Code"]
+                ).update(
+                    {"status": "会計待ち"}
+                )
+
+        all_data = (
+            query.filter(
+                AcceptanceModel.status.in_(status),
+            )
+            .filter(AcceptanceModel.date == date_to_string(datetime.now()))
+            .all()
+            if len(status) != 0
+            else query.filter(
+                AcceptanceModel.date == date_to_string(datetime.now())
+            ).all()
+        )
+        result = [dd for dd in all_data if dd.status != "会計済み"]
+        for rslt in result:
+            ended_json_d = post_request(
+                api_uri=orca.ended_account,
+                res_key="medicalget01res",
+                post_data=req_to_xml(
+                    req_key="medicalgetreq",
+                    req_data={
+                        "Patient_ID": rslt.pati_id,
+                        "Perform_Date": "",
+                    },
+                ),
+            )
+            if ended_json_d["Api_Result"] == "K1":
+                rslt.status = "会計済み"
+                query.filter(
+                    AcceptanceModel.date == date_to_string(datetime.now())
+                ).filter(
+                    AcceptanceModel.pati_id
+                    == ended_json_d["Patient_Information"]["Patient_ID"]
+                ).filter(
+                    AcceptanceModel.depart_code
+                    == ended_json_d["Medical_List_Information"][0]["Department_Code"]
+                ).update(
+                    {"status": "会計済み"}
+                )
+        database.SessionLocal.commit()
+
+        return all_data
 
     # Patient List
     patients = List(Patient, pati_id=List(String))
@@ -30,7 +115,7 @@ class Query(ObjectType):
         query = Patient.get_query(info)
         result = (
             query.filter(
-                PatientModel.pati_id.in_(pati_id),
+                PatientModel.Patient_ID.in_(pati_id),
             ).all()
             if len(pati_id) != 0
             else query.all()
@@ -91,6 +176,25 @@ class Query(ObjectType):
             if len(code) != 0
             else query.all()
         )
+        return result
+
+    #
+    #
+    # Physician
+
+    get_account_data = String(data=String())
+
+    def resolve_get_account_data(self, info, data="", **kwargs):
+        result = data
+        print(data)
+        # query = Physician.get_query(info)
+        # result = (
+        #     query.filter(
+        #         PhysicianModel.code.in_(code),
+        #     ).all()
+        #     if len(code) != 0
+        #     else query.all()
+        # )
         return result
 
 
@@ -217,9 +321,68 @@ class InsertPatient(Mutation):
 #         return InsertAcceptance(acceptance=acceptances)
 
 
+class AcceptanceInput(InputObjectType):
+    date = String()
+    time = String()
+    pati_id = String()
+    pati_sei = String()
+    pati_mei = String()
+    pati_sei_kana = String()
+    pati_mei_kana = String()
+    pati_birth = String()
+    pati_sex = String()
+    status = String()
+    depart_code = String()
+    depart_name = String()
+    physic_code = String()
+    physic_name = String()
+    appoint_id = String()
+    appoint_time = String()
+    account_time = String()
+    medi_contents = String()
+    place = String()
+    memo = String()
+
+
+class AddAcceptance(Mutation):
+    class Arguments:
+        acc_data = AcceptanceInput(required=True)
+
+    acceptance = Field(Acceptance)
+
+    def mutate(self, info, acc_data=None):
+        acceptances = AcceptanceModel(
+            date=acc_data.date,
+            time=acc_data.time,
+            pati_id=acc_data.pati_id,
+            pati_sei=acc_data.pati_sei,
+            pati_mei=acc_data.pati_mei,
+            pati_sei_kana=acc_data.pati_sei_kana,
+            pati_mei_kana=acc_data.pati_mei_kana,
+            pati_birth=acc_data.pati_birth,
+            pati_sex=acc_data.pati_sex,
+            status=acc_data.status,
+            depart_code=acc_data.depart_code,
+            depart_name=acc_data.depart_name,
+            physic_code=acc_data.physic_code,
+            physic_name=acc_data.physic_name,
+            appoint_id=acc_data.appoint_id,
+            appoint_time=acc_data.appoint_time,
+            account_time=acc_data.account_time,
+            medi_contents=acc_data.medi_contents,
+            place=acc_data.place,
+            memo=acc_data.memo,
+        )
+
+        database.SessionLocal.add(acceptances)
+        database.SessionLocal.commit()
+        return AddAcceptance(acceptance=acceptances)
+
+
 class Mutation(ObjectType):
     insert_patient = InsertPatient.Field()
     # insert_acceptance = InsertAcceptance.Field()
+    add_acceptance = AddAcceptance.Field()
 
     # Insert Acceptance
     insert_acceptance = Field(Acceptance, req_data=GenericScalar())

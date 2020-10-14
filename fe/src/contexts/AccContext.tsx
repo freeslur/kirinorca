@@ -89,19 +89,23 @@ type AccContextType = {
     detailP: boolean;
     openNew: boolean;
     openNewAcc: boolean;
+    fromAccList: boolean;
     changeStatus: ChangeStatusType;
     newbieData: any;
     allPatiData: any;
+    allAccData: any;
     allPhysData: any;
     allDepartData: any;
     patiDetailId: string;
     detailData: any;
+    accountData: any;
   };
   actions: {
     setSearched: (flag: boolean) => void;
     setDetailP: (flag: boolean) => void;
     setOpenNew: (flag: boolean) => void;
     setOpenNewAcc: (flag: boolean) => void;
+    setFromAccList: (flag: boolean) => void;
     setChangeStatus: ({
       index,
       acc_id,
@@ -112,10 +116,12 @@ type AccContextType = {
     }: ChangeStatusType) => void;
     setNewbieData: (data: any) => void;
     setAllPatiData: (data: any) => void;
+    setAllAccData: (data: any) => void;
     setAllPhysData: (data: any) => void;
     setAllDepartData: (data: any) => void;
     setPatiDetailId: (patiId: string) => void;
     setDetailData: (data: any) => void;
+    setAccoutData: (data: any) => void;
   };
 };
 
@@ -125,6 +131,7 @@ const AccContext = createContext<AccContextType>({
     detailP: false,
     openNew: false,
     openNewAcc: false,
+    fromAccList: false,
     changeStatus: {
       index: -1,
       acc_id: '',
@@ -135,23 +142,28 @@ const AccContext = createContext<AccContextType>({
     },
     newbieData: [],
     allPatiData: [],
+    allAccData: [],
     allPhysData: [],
     allDepartData: [],
     patiDetailId: '',
     detailData: '',
+    accountData: {},
   },
   actions: {
     setSearched: () => {},
     setDetailP: () => {},
     setOpenNew: () => {},
     setOpenNewAcc: () => {},
+    setFromAccList: () => {},
     setChangeStatus: () => {},
     setNewbieData: () => {},
     setAllPatiData: () => {},
+    setAllAccData: () => {},
     setAllPhysData: () => {},
     setAllDepartData: () => {},
     setPatiDetailId: () => {},
     setDetailData: () => {},
+    setAccoutData: () => {},
   },
 });
 
@@ -160,6 +172,7 @@ export const AccContextProvider: React.FC = ({ children }) => {
   const [detailP, setDetailP] = useState(false);
   const [openNew, setOpenNew] = useState(false);
   const [openNewAcc, setOpenNewAcc] = useState(false);
+  const [fromAccList, setFromAccList] = useState(false);
   const [changeStatus, setChangeStatus] = useState<ChangeStatusType>({
     index: -1,
     acc_id: '',
@@ -170,10 +183,12 @@ export const AccContextProvider: React.FC = ({ children }) => {
   });
   const [newbieData, setNewbieData] = useState([]);
   const [allPatiData, setAllPatiData] = useState([]);
+  const [allAccData, setAllAccData] = useState([]);
   const [allPhysData, setAllPhysData] = useState([]);
   const [allDepartData, setAllDepartData] = useState([]);
   const [patiDetailId, setPatiDetailId] = useState('');
   const [detailData, setDetailData] = useState({});
+  const [accountData, setAccountData] = useState({});
 
   const value: AccContextType = {
     state: {
@@ -181,26 +196,32 @@ export const AccContextProvider: React.FC = ({ children }) => {
       detailP: detailP,
       openNew: openNew,
       openNewAcc: openNewAcc,
+      fromAccList: fromAccList,
       changeStatus: changeStatus,
       newbieData: newbieData,
       allPatiData: allPatiData,
+      allAccData: allAccData,
       allPhysData: allPhysData,
       allDepartData: allDepartData,
       patiDetailId: patiDetailId,
       detailData: detailData,
+      accountData: accountData,
     },
     actions: {
       setSearched: setSearched,
       setDetailP: setDetailP,
       setOpenNew: setOpenNew,
       setOpenNewAcc: setOpenNewAcc,
+      setFromAccList: setFromAccList,
       setChangeStatus: setChangeStatus,
       setNewbieData: setNewbieData,
       setAllPatiData: setAllPatiData,
+      setAllAccData: setAllAccData,
       setAllPhysData: setAllPhysData,
       setAllDepartData: setAllDepartData,
       setPatiDetailId: setPatiDetailId,
       setDetailData: setDetailData,
+      setAccoutData: setAccountData,
     },
   };
   return <AccContext.Provider value={value}>{children}</AccContext.Provider>;

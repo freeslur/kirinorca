@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import request from 'graphql-request';
+import React, { useEffect, useState } from 'react';
 import {
   Accordion,
   AccordionTitleProps,
@@ -9,15 +10,33 @@ import {
   Label,
   Table,
 } from 'semantic-ui-react';
+import { server_url } from '../api/Settings';
+import { PLACE_OPTIONS } from '../api/var';
 import { useAccContext } from '../contexts/AccContext';
-
-const statusOption = [{ key: '1', text: '待合室', value: '待合室' }];
+import { ALL_ACCEPTANCES_GQ } from '../utils/graphql';
+import { convert_jp_date } from '../utils/utils';
 
 const AcceptanceList = () => {
   const [activeIndex, setActiveIndex] = useState<string | number | undefined>(
     0
   );
   const accCtx = useAccContext();
+
+  const allAccData = () => {
+    request(server_url, ALL_ACCEPTANCES_GQ)
+      .then((data: any) => {
+        const accData = data.acceptances;
+        accCtx.actions.setAllAccData(accData);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  };
+
+  useEffect(() => {
+    allAccData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const handleActiveIndex = (
     e: React.MouseEvent,
@@ -28,25 +47,22 @@ const AcceptanceList = () => {
     setActiveIndex(newIndex);
   };
 
-  const handleShowDetail = (pati_id: string) => {
-    accCtx.actions.setDetailP(true);
-  };
   return (
-    <Container fluid>
+    <Container style={{ height: '100vh' }} fluid>
       <Accordion styled fluid>
         <Accordion.Title
           index={0}
-          active={activeIndex === 0}
+          active
           onClick={handleActiveIndex}
           style={{
-            backgroundColor: activeIndex === 0 ? '#499937' : 'gray',
+            backgroundColor: '#499937',
             color: 'white',
           }}
         >
           <Icon name='dropdown' />
           外来受付リスト　○人
         </Accordion.Title>
-        <Accordion.Content active={activeIndex === 0} style={{ padding: '0' }}>
+        <Accordion.Content active style={{ padding: '0' }}>
           <Table celled fixed>
             <Table.Header>
               <Table.Row>
@@ -63,62 +79,75 @@ const AcceptanceList = () => {
               </Table.Row>
             </Table.Header>
             <Table.Body>
-              <Table.Row>
-                <Table.Cell>0001</Table.Cell>
-                <Table.Cell textAlign='center'>
-                  内科
-                  <br />
-                  一般診療
-                </Table.Cell>
-                <Table.Cell>8:56</Table.Cell>
-                <Table.Cell textAlign='center' style={{ padding: '0' }}>
-                  <Label style={{}}>受付済み</Label>
-                </Table.Cell>
-                <Table.Cell textAlign='center'>
-                  キム　キム
-                  <br />
-                  金　金
-                </Table.Cell>
-                <Table.Cell textAlign='center' style={{ padding: '0' }}>
-                  <Button
-                    icon='desktop'
-                    color='green'
-                    label='カルテ'
-                    style={{ fontSize: '10px' }}
-                    onClick={() => handleShowDetail('')}
-                  />
-                </Table.Cell>
-                <Table.Cell textAlign='center'>
-                  00001
-                  <br />
-                  49歳3ヶ月　女
-                </Table.Cell>
-                <Table.Cell>木村医師</Table.Cell>
-                <Table.Cell textAlign='center' style={{ padding: '0' }}>
-                  <Dropdown
-                    defaultValue='待合室'
-                    direction='right'
-                    options={statusOption}
-                  />
-                </Table.Cell>
-                <Table.Cell></Table.Cell>
-              </Table.Row>
+              {console.log(accCtx.state.allAccData)}
+              {accCtx.state.allAccData.map((data: any) => {
+                if (data.status === '診療待ち') {
+                  return (
+                    <Table.Row key={data.accId}>
+                      <Table.Cell>{data.accId}</Table.Cell>
+                      <Table.Cell textAlign='center'>
+                        {data.departName}
+                        <br />
+                        {data.mediContents}
+                      </Table.Cell>
+                      <Table.Cell>{data.time}</Table.Cell>
+                      <Table.Cell textAlign='center' style={{ padding: '0' }}>
+                        <Label style={{}}>{data.status}</Label>
+                      </Table.Cell>
+                      <Table.Cell textAlign='center'>
+                        {data.patiSeiKana + '　' + data.patiMeiKana}
+                        <br />
+                        {data.patiSei + '　' + data.patiMei}
+                      </Table.Cell>
+                      <Table.Cell textAlign='center' style={{ padding: '0' }}>
+                        <Button
+                          icon='desktop'
+                          color='green'
+                          label='カルテ'
+                          style={{ fontSize: '10px' }}
+                          onClick={() => {
+                            accCtx.actions.setPatiDetailId(data.patiId);
+                            accCtx.actions.setDetailP(true);
+                            accCtx.actions.setFromAccList(true);
+                            accCtx.actions.setAccoutData(data);
+                          }}
+                        />
+                      </Table.Cell>
+                      <Table.Cell textAlign='center'>
+                        {data.patiId}
+                        <br />
+                        {convert_jp_date(data.patiBirth) + '　' + data.patiSex}
+                      </Table.Cell>
+                      <Table.Cell>{data.physicName}</Table.Cell>
+                      <Table.Cell textAlign='center' style={{ padding: '0' }}>
+                        <Dropdown
+                          defaultValue='待合室'
+                          direction='right'
+                          options={PLACE_OPTIONS}
+                        />
+                      </Table.Cell>
+                      <Table.Cell>{data.memo}</Table.Cell>
+                    </Table.Row>
+                  );
+                }
+                return null;
+              })}
             </Table.Body>
           </Table>
         </Accordion.Content>
         <Accordion.Title
           index={1}
-          active={activeIndex === 1}
+          active
           onClick={handleActiveIndex}
           style={{
-            backgroundColor: activeIndex === 1 ? '#499937' : 'gray',
+            backgroundColor: '#499937',
             color: 'white',
           }}
         >
           <Icon name='dropdown' />
           会計待ちリスト　○人
         </Accordion.Title>
-        <Accordion.Content active={activeIndex === 1} style={{ padding: '0' }}>
+        <Accordion.Content active style={{ padding: '0' }}>
           <Table celled fixed>
             <Table.Header>
               <Table.Row>
@@ -135,61 +164,73 @@ const AcceptanceList = () => {
               </Table.Row>
             </Table.Header>
             <Table.Body>
-              <Table.Row>
-                <Table.Cell>0001</Table.Cell>
-                <Table.Cell textAlign='center'>
-                  内科
-                  <br />
-                  一般診療
-                </Table.Cell>
-                <Table.Cell>8:56</Table.Cell>
-                <Table.Cell textAlign='center' style={{ padding: '0' }}>
-                  <Label style={{}}>受付済み</Label>
-                </Table.Cell>
-                <Table.Cell textAlign='center'>
-                  キム　キム
-                  <br />
-                  金　金
-                </Table.Cell>
-                <Table.Cell textAlign='center' style={{ padding: '0' }}>
-                  <Button
-                    icon='desktop'
-                    color='green'
-                    label='カルテ'
-                    style={{ fontSize: '10px' }}
-                  ></Button>
-                </Table.Cell>
-                <Table.Cell textAlign='center'>
-                  00001
-                  <br />
-                  49歳3ヶ月　女
-                </Table.Cell>
-                <Table.Cell>木村医師</Table.Cell>
-                <Table.Cell textAlign='center' style={{ padding: '0' }}>
-                  <Dropdown
-                    defaultValue='待合室'
-                    direction='right'
-                    options={statusOption}
-                  />
-                </Table.Cell>
-                <Table.Cell></Table.Cell>
-              </Table.Row>
+              {accCtx.state.allAccData.map((data: any) => {
+                if (data.status === '会計待ち') {
+                  return (
+                    <Table.Row key={data.accId}>
+                      <Table.Cell>{data.accId}</Table.Cell>
+                      <Table.Cell textAlign='center'>
+                        {data.departName}
+                        <br />
+                        {data.mediContents}
+                      </Table.Cell>
+                      <Table.Cell>{data.time}</Table.Cell>
+                      <Table.Cell textAlign='center' style={{ padding: '0' }}>
+                        <Label style={{}}>{data.status}</Label>
+                      </Table.Cell>
+                      <Table.Cell textAlign='center'>
+                        {data.patiSeiKana + '　' + data.patiMeiKana}
+                        <br />
+                        {data.patiSei + '　' + data.patiMei}
+                      </Table.Cell>
+                      <Table.Cell textAlign='center' style={{ padding: '0' }}>
+                        <Button
+                          icon='desktop'
+                          color='green'
+                          label='カルテ'
+                          style={{ fontSize: '10px' }}
+                          onClick={() => {
+                            accCtx.actions.setPatiDetailId(data.patiId);
+                            accCtx.actions.setDetailP(true);
+                            accCtx.actions.setFromAccList(true);
+                          }}
+                        />
+                      </Table.Cell>
+                      <Table.Cell textAlign='center'>
+                        {data.patiId}
+                        <br />
+                        {convert_jp_date(data.patiBirth) + '　' + data.patiSex}
+                      </Table.Cell>
+                      <Table.Cell>{data.physicName}</Table.Cell>
+                      <Table.Cell textAlign='center' style={{ padding: '0' }}>
+                        <Dropdown
+                          defaultValue='待合室'
+                          direction='right'
+                          options={PLACE_OPTIONS}
+                        />
+                      </Table.Cell>
+                      <Table.Cell>{data.memo}</Table.Cell>
+                    </Table.Row>
+                  );
+                }
+                return null;
+              })}
             </Table.Body>
           </Table>
         </Accordion.Content>
         <Accordion.Title
           index={2}
-          active={activeIndex === 2}
+          active
           onClick={handleActiveIndex}
           style={{
-            backgroundColor: activeIndex === 2 ? '#499937' : 'gray',
+            backgroundColor: '#499937',
             color: 'white',
           }}
         >
           <Icon name='dropdown' />
           会計済みリスト　○人
         </Accordion.Title>
-        <Accordion.Content active={activeIndex === 2} style={{ padding: '0' }}>
+        <Accordion.Content active style={{ padding: '0' }}>
           <Table celled fixed>
             <Table.Header>
               <Table.Row>
@@ -206,45 +247,57 @@ const AcceptanceList = () => {
               </Table.Row>
             </Table.Header>
             <Table.Body>
-              <Table.Row>
-                <Table.Cell>0001</Table.Cell>
-                <Table.Cell textAlign='center'>
-                  内科
-                  <br />
-                  一般診療
-                </Table.Cell>
-                <Table.Cell>8:56</Table.Cell>
-                <Table.Cell textAlign='center' style={{ padding: '0' }}>
-                  <Label style={{}}>受付済み</Label>
-                </Table.Cell>
-                <Table.Cell textAlign='center'>
-                  キム　キム
-                  <br />
-                  金　金
-                </Table.Cell>
-                <Table.Cell textAlign='center' style={{ padding: '0' }}>
-                  <Button
-                    icon='desktop'
-                    color='green'
-                    label='カルテ'
-                    style={{ fontSize: '10px' }}
-                  ></Button>
-                </Table.Cell>
-                <Table.Cell textAlign='center'>
-                  00001
-                  <br />
-                  49歳3ヶ月　女
-                </Table.Cell>
-                <Table.Cell>木村医師</Table.Cell>
-                <Table.Cell textAlign='center' style={{ padding: '0' }}>
-                  <Dropdown
-                    defaultValue='待合室'
-                    direction='right'
-                    options={statusOption}
-                  />
-                </Table.Cell>
-                <Table.Cell></Table.Cell>
-              </Table.Row>
+              {accCtx.state.allAccData.map((data: any) => {
+                if (data.status === '会計済み') {
+                  return (
+                    <Table.Row key={data.accId}>
+                      <Table.Cell>{data.accId}</Table.Cell>
+                      <Table.Cell textAlign='center'>
+                        {data.departName}
+                        <br />
+                        {data.mediContents}
+                      </Table.Cell>
+                      <Table.Cell>{data.time}</Table.Cell>
+                      <Table.Cell textAlign='center' style={{ padding: '0' }}>
+                        <Label style={{}}>{data.status}</Label>
+                      </Table.Cell>
+                      <Table.Cell textAlign='center'>
+                        {data.patiSeiKana + '　' + data.patiMeiKana}
+                        <br />
+                        {data.patiSei + '　' + data.patiMei}
+                      </Table.Cell>
+                      <Table.Cell textAlign='center' style={{ padding: '0' }}>
+                        <Button
+                          icon='desktop'
+                          color='green'
+                          label='カルテ'
+                          style={{ fontSize: '10px' }}
+                          onClick={() => {
+                            accCtx.actions.setPatiDetailId(data.patiId);
+                            accCtx.actions.setDetailP(true);
+                            accCtx.actions.setFromAccList(true);
+                          }}
+                        />
+                      </Table.Cell>
+                      <Table.Cell textAlign='center'>
+                        {data.patiId}
+                        <br />
+                        {convert_jp_date(data.patiBirth) + '　' + data.patiSex}
+                      </Table.Cell>
+                      <Table.Cell>{data.physicName}</Table.Cell>
+                      <Table.Cell textAlign='center' style={{ padding: '0' }}>
+                        <Dropdown
+                          defaultValue='待合室'
+                          direction='right'
+                          options={PLACE_OPTIONS}
+                        />
+                      </Table.Cell>
+                      <Table.Cell>{data.memo}</Table.Cell>
+                    </Table.Row>
+                  );
+                }
+                return null;
+              })}
             </Table.Body>
           </Table>
         </Accordion.Content>

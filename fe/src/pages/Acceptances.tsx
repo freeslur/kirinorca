@@ -8,7 +8,11 @@ import RegistPatient from '../components/RegistPatient';
 import SearchPatients from '../components/SearchPatients';
 import Toolbar from '../components/Toolbar';
 import { useAccContext } from '../contexts/AccContext';
-import { GET_DEPARTMENT_GQ, GET_PHYSICIAN_GQ } from '../utils/graphql';
+import {
+  ALL_ACCEPTANCES_GQ,
+  GET_DEPARTMENT_GQ,
+  GET_PHYSICIAN_GQ,
+} from '../utils/graphql';
 
 const dropdownOptions = [{ key: 'all', text: 'すべて', value: 'all' }];
 
@@ -28,6 +32,17 @@ const Acceptances: FC = () => {
       depart2_name: '',
     },
   ]);
+
+  const allAccData = () => {
+    request(server_url, ALL_ACCEPTANCES_GQ)
+      .then((data: any) => {
+        const accData = data.acceptances;
+        accCtx.actions.setAllAccData(accData);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  };
 
   const allDepartment = () => {
     request(server_url, GET_DEPARTMENT_GQ([]))
@@ -124,6 +139,13 @@ const Acceptances: FC = () => {
                                   backgroundColor: '#ECEFF1',
                                   width: 160,
                                 }}
+                              />
+                              <Form.Button
+                                icon='refresh'
+                                style={{
+                                  width: 100,
+                                }}
+                                onClick={allAccData}
                               />
                             </Form.Group>
                           </Form>

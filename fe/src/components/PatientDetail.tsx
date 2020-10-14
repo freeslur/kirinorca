@@ -7,11 +7,18 @@ import {
   Sidebar,
   SidebarProps,
 } from 'semantic-ui-react';
+import { axios_base } from '../api/api';
 import { server_url } from '../api/Settings';
 import { useAccContext } from '../contexts/AccContext';
 import { PATIENT_DETAIL_GQ } from '../utils/graphql';
 import { calc_age, convert_sex } from '../utils/utils';
 import RegistAcceptance from './RegistAcceptance';
+
+const client = axios_base();
+
+const sendAccountData = (data: any) => {
+  return client.post('/sendaccount', data);
+};
 
 const PatientDetail = ({ visible }: SidebarProps) => {
   const accCtx = useAccContext();
@@ -24,6 +31,23 @@ const PatientDetail = ({ visible }: SidebarProps) => {
       .catch((err) => {
         console.log(err);
       });
+  };
+
+  const sendAccount = () => {
+    const data = accCtx.state.accountData;
+    sendAccountData({ data: data }).then((data: any) => {
+      console.log(data);
+      accCtx.actions.setAccoutData({});
+      accCtx.actions.setDetailP(false);
+    });
+    // request(server_url, SEND_ACCOUNT_GQ(accCtx.state.accountData))
+    //   .then((data: any) => {
+    //     accCtx.actions.setAccoutData({});
+    //     accCtx.actions.setDetailP(false);
+    //   })
+    //   .catch((err) => {
+    //     console.log(err);
+    //   });
   };
 
   useEffect(() => {
@@ -55,13 +79,24 @@ const PatientDetail = ({ visible }: SidebarProps) => {
         onClick={(e: React.MouseEvent, d: ButtonProps) => {
           accCtx.actions.setOpenNewAcc(true);
         }}
+        disabled={accCtx.state.fromAccList}
       >
         受付する
       </Button>
-      <Button color='green' disabled>
+      <Button
+        color='green'
+        disabled={!accCtx.state.fromAccList}
+        onClick={sendAccount}
+      >
         会計処理
       </Button>
-      <Button color='green' onClick={() => accCtx.actions.setDetailP(false)}>
+      <Button
+        color='green'
+        onClick={() => {
+          accCtx.actions.setAccoutData({});
+          accCtx.actions.setDetailP(false);
+        }}
+      >
         閉じる
       </Button>
       <Segment>

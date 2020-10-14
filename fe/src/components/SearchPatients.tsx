@@ -95,6 +95,7 @@ const SearchPatients = ({ visible }: SidebarProps) => {
                       onClick={() => {
                         accCtx.actions.setPatiDetailId(patiData.patiId);
                         accCtx.actions.setDetailP(true);
+                        accCtx.actions.setFromAccList(false);
                       }}
                     ></Button>
                   </Table.Cell>

@@ -22,9 +22,8 @@ export const PATIENT_DETAIL_GQ = (patiId: string) => {
 };
 
 export const REGIST_ACCEPTANCE_GQ = (data: any) => {
-  console.log(data.insurance);
   return `mutation{
-    insertAcceptance(reqData: {date:"${data.date}",
+    addAcceptance(accData: {date:"${data.date}",
           time:"${data.time}",
           patiId:"${data.pati_id}",
           patiSei:"${data.pati_sei}",
@@ -39,11 +38,11 @@ export const REGIST_ACCEPTANCE_GQ = (data: any) => {
           physicCode:"${data.physic_code}",
           physicName:"${data.physic_name}",
           mediContents:"${data.medi_contents}",
-          place:"${data.place}",
-          insurance:${JSON.stringify(data.insurance)}}){
-        id
-        date
-        insurance
+          place:"${data.place}"}){
+            acceptance{
+              accId
+              date
+            }
     }
   }`;
 };
@@ -85,5 +84,31 @@ export const ALL_PATIENTS_GQ = `{
       meiKana
       birth
       sex
+    }
+  }`;
+
+export const ALL_ACCEPTANCES_GQ = `{
+  acceptances{
+    accId
+    date
+    time
+    patiId
+    patiSei
+    patiMei
+    patiSeiKana
+    patiMeiKana
+    patiBirth
+    patiSex
+    status
+    departCode
+    departName
+    physicCode
+    physicName
+    appointId
+    appointTime
+    accountTime
+    mediContents
+    place
+    memo
     }
   }`;

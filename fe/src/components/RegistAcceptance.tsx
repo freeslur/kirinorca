@@ -22,7 +22,11 @@ import {
 import { ACC_MEDICALS, PLACE_OPTIONS, STATUS } from '../api/var';
 import request from 'graphql-request';
 import { server_url } from '../api/Settings';
-import { PATIENT_DETAIL_GQ, REGIST_ACCEPTANCE_GQ } from '../utils/graphql';
+import {
+  ALL_ACCEPTANCES_GQ,
+  PATIENT_DETAIL_GQ,
+  REGIST_ACCEPTANCE_GQ,
+} from '../utils/graphql';
 
 type AccDataType = {
   date?: string;
@@ -45,7 +49,6 @@ type AccDataType = {
   medi_contents?: string;
   place?: string;
   memo?: string;
-  insurance?: any;
 };
 
 const RegistAcceptance = ({ onClose, onOpen, open }: ModalProps) => {
@@ -62,7 +65,6 @@ const RegistAcceptance = ({ onClose, onOpen, open }: ModalProps) => {
     const physData = accCtx.state.allPhysData.find((fd: any) => {
       return fd.key === physValue;
     });
-    console.log(physData);
     if (physData !== undefined) {
       accData.physic_code = physData.key;
       accData.physic_name = physData.text;
@@ -101,16 +103,20 @@ const RegistAcceptance = ({ onClose, onOpen, open }: ModalProps) => {
     checkDepart(accData.physic_code);
     request(server_url, PATIENT_DETAIL_GQ(accData.pati_id))
       .then((data: any) => {
-        accData.insurance = data.patiDetail.data.HealthInsurance_Information[0];
         request(server_url, REGIST_ACCEPTANCE_GQ(accData))
           .then((data: any) => {
-            console.log(data);
-            // const patiData = data.allPatients.edges;
-            // accCtx.actions.setAllPatiData(patiData);
-            // accCtx.actions.setOpenNewAcc(false);
-            // accCtx.actions.setDetailData({});
-            // accCtx.actions.setDetailP(false);
-            // accCtx.actions.setSearched(false);
+            request(server_url, ALL_ACCEPTANCES_GQ)
+              .then((data: any) => {
+                const accData = data.acceptances;
+                accCtx.actions.setAllAccData(accData);
+              })
+              .catch((err) => {
+                console.log(err);
+              });
+            accCtx.actions.setOpenNewAcc(false);
+            accCtx.actions.setDetailData({});
+            accCtx.actions.setDetailP(false);
+            accCtx.actions.setSearched(false);
           })
           .catch((err) => {
             console.log(err);
@@ -235,26 +241,6 @@ const RegistAcceptance = ({ onClose, onOpen, open }: ModalProps) => {
                           accData.depart_name = dd.text;
                           setRadioSelValue(dd.key);
                         }}
-                        // disabled={
-                        //   !(
-                        //     dd.code ===
-                        //       (accCtx.state.allPhysData.data
-                        //         ? accCtx.state.allPhysData.data.find(
-                        //             (d: any) => {
-                        //               return d.code === accData.physic_code;
-                        //             }
-                        //           ).departCode1
-                        //         : null) ||
-                        //     dd.code ===
-                        //       (accCtx.state.allPhysData.data
-                        //         ? accCtx.state.allPhysData.data.find(
-                        //             (d: any) => {
-                        //               return d.code === accData.physic_code;
-                        //             }
-                        //           ).departCode2
-                        //         : null)
-                        //   )
-                        // }
                       ></Radio>
                     );
                   })}

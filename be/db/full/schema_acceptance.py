@@ -1,6 +1,5 @@
 from db.full.models import Acceptance as AcceptanceModel
 from graphene import Int, String, relay
-from graphene.types.generic import GenericScalar
 from graphene_sqlalchemy import SQLAlchemyObjectType
 
 
@@ -26,7 +25,6 @@ class AcceptanceAttribute:
     medi_contents = String()
     place = String()
     memo = String()
-    insurance = GenericScalar()
 
 
 # Acceptance

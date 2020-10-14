@@ -1,14 +1,14 @@
 import config
 from db.full.database import Base
 from orcalib.or_acceptances import ORAcceptance
-from sqlalchemy import JSON, Column, ForeignKey, Integer, String
+from sqlalchemy import Column, ForeignKey, Integer, String
 from sqlalchemy.orm import relationship
 
 
 class Acceptance(Base):
     __tablename__ = "acceptances"
     __table_args__ = {"sqlite_autoincrement": True}
-    id = Column(Integer, primary_key=True)
+    acc_id = Column(Integer, primary_key=True)
     date = Column(String)
     time = Column(String)
     pati_id = Column(String)
@@ -29,7 +29,6 @@ class Acceptance(Base):
     medi_contents = Column(String)
     place = Column(String)
     memo = Column(String)
-    insurance = Column(JSON)
 
 
 def get_or_acc_data():
