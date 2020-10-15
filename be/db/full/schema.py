@@ -92,18 +92,18 @@ class Query(ObjectType):
                 ),
             )
             if ended_json_d["Api_Result"] == "K1":
-                rslt.status = "会計済み"
-                query.filter(
-                    AcceptanceModel.date == date_to_string(datetime.now())
-                ).filter(
-                    AcceptanceModel.pati_id
-                    == ended_json_d["Patient_Information"]["Patient_ID"]
-                ).filter(
-                    AcceptanceModel.depart_code
-                    == ended_json_d["Medical_List_Information"][0]["Department_Code"]
-                ).update(
-                    {"status": "会計済み"}
-                )
+                # rslt.status = "会計済み"
+                today = date_to_string(datetime.now())
+                pati_id = ended_json_d["Patient_Information"]["Patient_ID"]
+                for medi in ended_json_d["Medical_List_Information"]:
+                    if medi["Perform_Date"] == today:
+                        query.filter(AcceptanceModel.date == today).filter(
+                            AcceptanceModel.pati_id == pati_id
+                        ).filter(
+                            AcceptanceModel.depart_code == medi["Department_Code"]
+                        ).update(
+                            {"status": "会計済み"}
+                        )
         database.SessionLocal.commit()
 
         return all_data
